@@ -1,22 +1,18 @@
 # JumpSight
 
-> **Public overview.** The source code of JumpSight is private. This page
-> describes what the system does, how it is built at a high level and what
-> it measures. Reviewers can get read access to the full source on request —
-> see [Access to the code](#access-to-the-code).
+> **Public edition.** This repository contains the real source of the JumpSight
+> web application, the coaching service and the mobile client, with their tests
+> and CI. The analysis engine (finding the jump, measuring take-off, landing and
+> revolutions, naming the jump), the 3D-character pipeline, trained models and
+> datasets are private. Reviewers can get read access to the full source on
+> request — see [Access to the full source](#access-to-the-full-source).
 
 JumpSight analyses figure-skating jumps from a single phone video. For each
 jump it reports the jump type, the number of revolutions the way judges count
-them, take-off and landing times, air time, rotation speed and a set of
-landing checks — each with a confidence level and the reason behind it.
+them, take-off and landing times, air time, rotation speed and a set of landing
+checks — each with a confidence level and the reason behind it.
 
 Live: **https://jumpsight.pp.ua** (English and Ukrainian).
-
-A jump lasts about half a second, a phone films at 30 frames per second, and
-during fast rotation off-the-shelf pose models lose track of which way the
-body faces. Most of the engineering went into measuring what can be measured
-under those conditions, and saying plainly when something cannot be measured
-from the frames.
 
 ## What it looks like
 
@@ -35,33 +31,57 @@ Full quality: [jump-analysis.mp4](docs/media/jump-analysis.mp4).
 
 A coach films an exercise on a phone; the app teaches it with a 3D character
 that performs the same movement, so neither the coach's footage nor voice is
-shown. A clip is published only if it passes automatic accuracy gates against
-the original video.
+shown. A clip is published only if it passes automatic accuracy gates.
 Full quality: [character-a.mp4](docs/media/character-a.mp4), [character-b.mp4](docs/media/character-b.mp4).
 
-## What the product does
+## What is in this repository
 
-| Part | What the user gets |
-|---|---|
-| Jump analysis | the jump found in the video, take-off and landing, air time, revolutions, rotation speed, jump type, landing checks — each with a confidence and a reason |
-| Web app and live mode | upload a video or record in the browser; in live mode the first answer arrives a few seconds after the landing |
-| Coaching | a chat that answers from a curated knowledge base with sources, a daily session and a two-week plan built from the measured faults, a history of attempts, coach and student accounts |
-| Exercise library | short 3D-character demonstrations of each exercise with an AI-generated voice-over |
+| Part | What it does | Where |
+|---|---|---|
+| Web application | uploads (whole, chunked, live parts while filming), job queue with honest states, status and server-sent events, owner checks on every job and media URL, security headers | `src/jumpsight_app` |
+| Coaching service | chat that answers from a knowledge base with sources (rules first, then retrieval, a language model allowed only to rephrase the sources), daily session and 14-day plan from measured faults, fitness tests, history, coach and student accounts, Google sign-in | `src/jumpsight_coach` |
+| Shared core | paths, evidence format, job queue | `src/jumpsight_core` |
+| Mobile client | plain JavaScript PWA, one file per screen, English and Ukrainian | `web/` |
+| Tests | 348 Python tests + client unit test; package boundaries enforced by `tests/test_architecture.py` | `tests/` |
+
+| Part | Files | Lines |
+|---|---|---|
+| Web application | 20 | 2,523 |
+| Coaching service | 59 | 11,735 |
+| Shared core | 5 | 282 |
+| Mobile client | 29 | 14,446 |
+| Tests | 49 | 3,944 |
+
+How it fits together: [docs/how-it-works.md](docs/how-it-works.md).
+Where each kind of change goes: [docs/extending.md](docs/extending.md).
+
+## What is private
+
+The engine is reached only through `src/jumpsight_app/engine_bridge/`, which
+in this edition is an **interface without an implementation**: `available()`
+is False, and an analysis job ends with the error `ENGINE_UNAVAILABLE` —
+the loud failure the app is built to show, never a made-up result. The same
+holds for the live analysis worker and the 3D avatar of the user's own jump.
+
+Not included: the analysis engine, the jump-name model, the 3D-character
+pipeline, trained weights, datasets, training recipes, deployment
+configuration.
 
 ## Principles
 
-- **No invented numbers.** Every value is either measured from the frames,
-  explicitly marked as inferred, or absent with a reason. The interface never
-  fills a gap with a plausible-looking number.
+- **No invented numbers.** Every value is measured, explicitly marked as
+  inferred, or absent with a reason. Nothing fills a gap with a
+  plausible-looking number.
 - **Confidence next to every conclusion.** Lutz and flip differ only by the
-  blade edge, which a single camera cannot see; the system shows them as a
-  pair and never with high confidence.
-- **The coach answers from sources.** Answers are grounded in a reviewed
-  knowledge base; a statement that is not supported by a source is not shown.
-- **Measured, not assumed.** Every design decision was checked on data with
-  known truth, and ideas that did not improve the product were dropped.
+  blade edge, which one camera cannot see; they are shown as a pair and never
+  with high confidence.
+- **The coach answers from sources.** If a statement in a generated answer is
+  not found in the retrieved sources, the answer is replaced by the source
+  excerpt itself.
+- **Measured, not assumed.** Decisions were checked on data with known truth;
+  ideas that did not improve the product were dropped.
 
-## Measured results
+## Measured results (full system)
 
 | What | Result | Data |
 |---|---|---|
@@ -73,25 +93,28 @@ Full quality: [character-a.mp4](docs/media/character-a.mp4), [character-b.mp4](d
 There is no labelled set of phone videos yet, so accuracy on the target input
 is not known; landing checks have no measured sensitivity yet.
 
-## Engineering at a glance
+## Running it
 
-- Python 3.11 analysis engine as a separate package, run by the web app as a
-  long-lived worker process.
-- FastAPI backend, plain-JavaScript mobile web client (installable PWA),
-  English and Ukrainian.
-- Coaching service with retrieval over a knowledge base and a language model
-  restricted to the retrieved sources.
-- Offline 3D-character pipeline (motion recovery, retargeting, Blender render)
-  with automatic quality gates.
-- Deployed on Google Cloud Run (CPU only, about 30 s per analysis).
-- About 37,000 lines of code and 1,000+ automated tests; architecture
-  boundaries between packages are enforced by tests; CI on every change.
+Python 3.11.
 
-## Access to the code
+```
+pip install -e ".[app,coach,dev]"
+ruff check .
+pytest -m "not requires_models and not requires_media"
+uvicorn jumpsight_app.web:app --port 8000
+```
 
-The full source is private. If you are reviewing my work and want to read it,
-contact me via [maxsaiets.com](https://maxsaiets.com) and I will grant
-read access.
+The app, the client, accounts and the coach run; an uploaded video ends with
+`ENGINE_UNAVAILABLE` because the engine is not part of this edition. The chat
+needs `OPENAI_API_KEY` for generated answers; without it, rule-based answers
+and source excerpts still work.
+
+## Access to the full source
+
+The full source (engine and character pipeline included, about 37,000 lines
+and 1,000+ tests) is in a private repository. If you are reviewing my work,
+contact me via [maxsaiets.com](https://maxsaiets.com) with your GitHub
+username and I will grant read access.
 
 ## Licence
 

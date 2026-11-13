@@ -1,0 +1,690 @@
+- cues:
+  - extended free-leg does not wobble or bend
+  dosage: 3x10 small jumps backward in landing position
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_back_hops_landing
+  kind: off_ice
+  level: 1
+  name: Backwards hops in landing position
+  source: hvfsc
+  steps:
+  - Assume the landing position with the free leg extended
+  - Perform jumps backward on the supporting leg
+  - Keep the free leg extended without swaying and bending
+  steps_source: drill cues
+  success: '8 of 10 reps meeting the cue: extended free-leg does not wobble or bend'
+  targets:
+  - two_foot_landing
+  - landing_stability
+  - fall
+  transfer_caveat: true
+- cues:
+  - tap toe of free leg to heel of landing foot before extending
+  dosage: 3x8
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_landing_tap_hops
+  kind: off_ice
+  level: 2
+  name: Backwards landing tap-hops
+  prerequisites:
+  - hv_back_hops_landing
+  progression_id: hv_3hops_hold
+  source: hvfsc
+  steps:
+  - Move backward and land on one leg
+  - Touch the toe of the free leg to the heel of the landing leg
+  - Straighten your legs while continuing to move back.
+  steps_source: drill cues
+  success: '6 of 8 reps meeting the cue: tap toe of free leg to heel of landing foot before extending'
+  targets:
+  - two_foot_landing
+  - landing_stability
+  transfer_caveat: true
+- cues:
+  - Hold position 5 sec without wobble
+  - knee cushions, not straight
+  dosage: 5 sets
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_3hops_hold
+  kind: off_ice
+  level: 2
+  name: 3 hops backwards + 5s hold
+  prerequisites:
+  - hv_back_hops_landing
+  progression_id: hv_single_rot_landing
+  source: hvfsc
+  steps:
+  - Stand on the landing leg, knee softly bent
+  - three jumps back on the same leg, knee absorbs each
+  - after the third, fix the exit position and hold for 5 seconds
+  - Keep the body steady; if it wobbles — stop and start the series again.
+  success: 5 seconds hold without fluctuations in all 5 series
+  targets:
+  - landing_stability
+  - stiff_landing_knee
+  - fall
+  transfer_caveat: true
+- cues:
+  - 'Correct hands on the check-out: left in front when turning counterclockwise.'
+  dosage: 2x10
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_quarter_turns
+  kind: off_ice
+  level: 1
+  name: 1/4 rotation turns (check-out)
+  source: hvfsc
+  steps:
+  - Take the check-out position (shoulders stop the rotation)
+  - Position the left hand in front.
+  - Perform a counterclockwise rotation
+  steps_source: drill cues
+  success: 8 of 10 turns where the arm on your rotation side stops the turn and you stand still
+  targets:
+  - late_check_out
+  - basics_rotation
+  transfer_caveat: true
+- cues:
+  - rebound quickly off the floor
+  - still checking out so you don't over-rotate
+  dosage: 3x6
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_consec_half_rotations
+  kind: off_ice
+  level: 2
+  name: Consecutive 1/2 rotations
+  prerequisites:
+  - hv_quarter_turns
+  progression_id: pw_jump_pull_in
+  source: hvfsc
+  steps:
+  - Push off the ice quickly.
+  - Control the turn to avoid twisting
+  steps_source: drill cues
+  success: '5 of 6 reps meeting the cue: rebound quickly off the floor'
+  targets:
+  - late_check_out
+  - under_rotation
+  - rotation_power
+  transfer_caveat: true
+- cues:
+  - full rotation and hold landing 3 sec
+  dosage: 3x6 in your rotation direction
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_single_rot_landing
+  kind: off_ice
+  level: 2
+  name: Single rotation with landing position
+  prerequisites:
+  - hv_consec_half_rotations
+  progression_id: hv_eyes_closed_rot
+  source: hvfsc
+  steps:
+  - full turn
+  - landing hold 3 s
+  steps_source: drill cues
+  success: 5 of 6 full turns with the landing position held for 3 s
+  targets:
+  - under_rotation
+  - landing_stability
+  - air_position
+  transfer_caveat: true
+- block: skill
+  cues:
+  - fly through a narrow tube — don't touch its walls before landing
+  - 'Tight position: arms to body right after takeoff'
+  dosage: 3x5
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_one_and_half
+  kind: off_ice
+  level: 3
+  mistakes_to_avoid:
+  - consequence: rotation is insufficient - under-rotation
+    fix_cue: Elbows to ribs immediately after takeoff.
+    mistake: The group gathers after the jump peak.
+  name: 1.5 rotations off-ice
+  progression_id: hv_double_two_foot
+  source: hvfsc
+  steps:
+  - jump up with immediate tight group
+  - 1.5 turns, arms to the body
+  - Landing in the exit position.
+  success: 5 clean in a row with landing fixation
+  targets:
+  - under_rotation
+  - rotation_power
+  - air_position
+  transfer_caveat: true
+- cues:
+  - maintain two-foot contact initially
+  dosage: 3x4, only after stable 1.5
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_double_two_foot
+  kind: off_ice
+  level: 4
+  name: Double rotation, two-foot landing
+  prerequisites:
+  - hv_one_and_half
+  source: hvfsc
+  steps:
+  - Perform double rotation
+  - Land on two feet, maintaining contact of both feet
+  steps_source: drill cues
+  success: '3 of 4 reps meeting the cue: maintain two-foot contact initially'
+  targets:
+  - under_rotation
+  - rotation_power
+  - air_position
+  transfer_caveat: true
+- cues:
+  - both directions
+  - First on two feet
+  - free space and supervision required
+  dosage: 2x5 carefully
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_eyes_closed_rot
+  kind: off_ice
+  level: 3
+  name: Eyes-closed rotations 1/4-1/2-1
+  source: hvfsc
+  steps:
+  - Perform spins on two feet.
+  - Ensure free space and supervision.
+  steps_source: drill cues
+  success: 4 of 5 turns in each direction without a step to catch your balance
+  targets:
+  - axis_tilt
+  - landing_stability
+  transfer_caveat: true
+- cues:
+  - jump straight up, twist hips completely to either side
+  dosage: 3x8
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_hip_twist_jumps
+  kind: off_ice
+  level: 2
+  name: Hip-twist jumps
+  progression_id: hv_single_rot_landing
+  source: hvfsc
+  steps:
+  - Jump straight up
+  - Twist the hips fully to one side.
+  steps_source: drill cues
+  success: '6 of 8 reps meeting the cue: jump straight up, twist hips completely to either side'
+  targets:
+  - rotation_power
+  - under_rotation
+  transfer_caveat: true
+- cues:
+  - attach band to stable post, rotate as in jumping
+  dosage: 3x10 on each side
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_band_upper_rot
+  kind: off_ice
+  level: 2
+  name: Elastic band upper-body rotations
+  progression_id: hv_shoulder_counter_rot
+  source: hvfsc
+  steps:
+  - Attach an elastic band to a stable support
+  - Perform torso rotations like in a jump
+  steps_source: drill cues
+  success: '8 of 10 reps meeting the cue: attach band to stable post, rotate as in jumping'
+  targets:
+  - rotation_power
+  - late_check_out
+  transfer_caveat: true
+- cues:
+  - swing free leg as in salchow, axel, or loop
+  dosage: 3x8
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_band_takeoff_lifts
+  kind: off_ice
+  level: 3
+  name: Elastic band take-off lifts
+  source: hvfsc
+  steps:
+  - Swing the free leg
+  - Apply the Salchow, Axel, or loop technique
+  steps_source: drill cues
+  success: '6 of 8 reps meeting the cue: swing free leg as in salchow, axel, or loop'
+  targets:
+  - low_height
+  - rotation_power
+  transfer_caveat: true
+- cues:
+  - Pull with the hand on the twist — this is the strength of the check-out
+  dosage: 3x10
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_shoulder_counter_rot
+  kind: off_ice
+  level: 2
+  name: Shoulder counter-rotations with band
+  progression_id: conte_snap_drill
+  source: hvfsc
+  steps:
+  - Stand with the band, hold it with both hands
+  - Pull the hand forward while twisting the shoulders in the opposite direction
+  - Hold the check-out (resistance) in the final position
+  steps_source: drill cues
+  success: 8 of 10 twists where the arm pulls the band all the way and the shoulders stop square
+  targets:
+  - late_check_out
+  - axis_tilt
+  transfer_caveat: true
+- cues:
+  - strengthen quick-twitch core muscles
+  dosage: 3x10
+  evidence: B
+  evidence_sources:
+  - hvfsc
+  id: hv_speed_skater_core
+  kind: off_ice
+  level: 2
+  name: Speed-skater + rotational turn
+  progression_id: hv_band_takeoff_lifts
+  source: hvfsc
+  steps:
+  - Perform side jumps like a speed skater.
+  - Add a rotational jump.
+  steps_source: drill cues (regenerated)
+  success: '8 of 10 reps meeting the cue: strengthen quick-twitch core muscles'
+  targets:
+  - rotation_power
+  - low_height
+  transfer_caveat: true
+- cues:
+  - Jump vertically - immediately tight
+  - elbows to ribs
+  dosage: 3x8
+  evidence: B
+  evidence_sources:
+  - pwice
+  id: pw_jump_pull_in
+  kind: off_ice
+  level: 2
+  name: Jump and pull in to rotate
+  progression_id: hv_one_and_half
+  source: pwice
+  steps:
+  - Jump vertically
+  - Tightly press the elbows to the ribs for rotation
+  steps_source: drill cues
+  success: '6 of 8 jumps: a vertical take-off and a tight position straight after it'
+  targets:
+  - under_rotation
+  - air_position
+  - rotation_power
+  transfer_caveat: true
+- cues:
+  - Progress only after clean reps on two feet
+  dosage: Step by step, 2 weeks per level
+  evidence: B
+  evidence_sources:
+  - pwice
+  id: pw_two_to_one_foot
+  kind: off_ice
+  level: 1
+  name: 'Progression: two-foot to one-foot rotations'
+  progression_id: hv_consec_half_rotations
+  source: pwice
+  steps:
+  - Do repetitions of rotations while standing on two legs
+  - Make sure the repetitions were clean (without mistakes)
+  - Complicate the exercise — perform a rotation on one leg
+  steps_source: drill cues
+  success: all sets clean on two feet before moving on to one foot
+  targets:
+  - basics_rotation
+  - under_rotation
+  - landing_stability
+  transfer_caveat: true
+- cues:
+  - rotation originates from STOPPING the forward motion on the pick, not from core power
+  - Skate -> pick -> let body rotate
+  dosage: in sets of 6-8 on approach, no jumps
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: conte_snizzle
+  kind: on_ice
+  level: 2
+  name: Snizzle (Conte)
+  prerequisites:
+  - conte_snap_drill
+  source: icoach
+  steps:
+  - Perform a step on the toe pick
+  - Stop the movement exactly on the toe pick
+  - Let the body rotate by itself without an active body swing
+  steps_source: drill cues
+  success: 'all sets: the turn starts from stopping on the toe pick, without forcing the upper body'
+  targets:
+  - basics_rotation
+  - under_rotation
+  url: https://icoachskating.com/figure-skating-jump-development-exercises-the-snizzle-chris-conte/
+- cues:
+  - Skate line with arms in position
+  - no arch and no bent knees in group position
+  - straight line from head to supporting foot
+  dosage: 2x10 steps
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: perna_axis_walk
+  kind: off_ice
+  level: 2
+  name: Axis walk drills (Perna)
+  note: 'the "held shoulder-hip twist" position is a CONTESTED school: Perna considers it outdated'
+  source: icoach
+  steps:
+  - Stand straight with arms in a group, maintaining a straight column from head to supporting foot without
+    bending in the group.
+  - Walk in a line, moving legs without excessive bending at the knee
+  - Maintain position throughout the exercise
+  steps_source: drill cues
+  success: 8 of 10 walks along a straight line with the arms in, without drifting off it
+  targets:
+  - axis_tilt
+  - air_position
+  transfer_caveat: true
+  url: https://icoachskating.com/jump-air-position-insights-and-drills-nick-perna/
+- block: skill
+  cues:
+  - next level only after 3 clean in a row (exit criterion)
+  dosage: 2x6 per step
+  evidence: B
+  evidence_sources:
+  - triangulated
+  exit_criteria: 3 clean in a row on the step
+  id: spinner_ladder
+  kind: off_ice
+  level: 1
+  mistakes_to_avoid:
+  - consequence: dirty technique is reinforced
+    fix_cue: 3 clean in a row - only then higher.
+    mistake: step skipping
+  name: Spinner rotation ladder 1/4->1/2->1->1.5
+  progression_id: pw_two_to_one_foot
+  source: triangulated
+  steps:
+  - 'step 1/4: quarter jump with control'
+  - Further 1/2, 1, 1.5 - only after the previous gate
+  success: 3 clean in a row at the current level.
+  targets:
+  - basics_rotation
+  - air_position
+  - under_rotation
+  transfer_caveat: true
+  url: https://www.goldenskate.com/forum/
+- cues:
+  - backspin -> fixate landing position with checkout
+  dosage: 2x5
+  evidence: B
+  evidence_sources:
+  - triangulated
+  id: backspin_landing
+  kind: on_ice
+  level: 2
+  name: Backspin in landing position
+  prerequisites:
+  - ast_landing_hold
+  source: triangulated
+  steps:
+  - Perform backspin
+  - Fix the landing position with a check-out
+  steps_source: drill cues
+  success: 4 of 5 backspins that finish in a steady landing position
+  targets:
+  - landing_stability
+  - late_check_out
+  - two_foot_landing
+  url: https://www.goldenskate.com/forum/
+- cues:
+  - corrections must be FELT under control - only with coach
+  dosage: per coach plan
+  evidence: B
+  evidence_sources:
+  - triangulated
+  id: harness_supervised
+  kind: on_ice
+  level: 3
+  name: Harness (longe) under coach control
+  prerequisites:
+  - hv_one_and_half
+  requires_supervision: true
+  source: triangulated
+  steps:
+  - Put on the harness under the coach's control.
+  - Perform the exercise, actively feeling corrections from the coach
+  steps_source: drill cues
+  success: every set supervised by a coach; corrections only with the coach
+  targets:
+  - under_rotation
+  - axis_tilt
+  - air_position
+  url: https://www.goldenskate.com/forum/
+- cues:
+  - 'EVIDENCE AGAINST for learned jumps: compensations negate effect (Ridge 2022)'
+  do_not_recommend: true
+  dosage: ''
+  evidence: B
+  evidence_sources:
+  - science
+  id: neg_weighted_gloves
+  kind: do_not_recommend
+  level: 0
+  name: Weighted gloves for rotations
+  source: science
+  targets:
+  - under_rotation
+  - rotation_power
+  url: https://pubmed.ncbi.nlm.nih.gov/35306974/
+- cues:
+  - moment of impulse at takeoff is the same in all jumps - the lever is not here, but in air position
+    (Yamaguchi 2025)
+  do_not_recommend: true
+  dosage: ''
+  evidence: B
+  evidence_sources:
+  - science
+  id: neg_more_takeoff_spin
+  kind: do_not_recommend
+  level: 0
+  name: Cue 'twist stronger at takeoff'
+  source: science
+  targets:
+  - under_rotation
+  url: https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2025.1597598/full
+- cues:
+  - forward inside three turn on the landing leg, exit to back outside edge in H-position
+  - upper body RESISTS rotation, thigh passes shoulders - twist is created
+  - 'Imagine: jump UP to axis and kiss it'
+  dosage: 2x6 on acceleration
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: conte_snap_drill
+  kind: on_ice
+  level: 2
+  name: Snap drill (Conte)
+  prerequisites:
+  - conte_backward_tstop
+  source: icoach
+  steps:
+  - Perform a forward inside three turn on the landing leg, transitioning to the back outside edge.
+  - Upper body in H-position, resist the turn, allowing the hip to lead the shoulders.
+  - Imagine you are jumping up to the axis of rotation and "touching" it
+  steps_source: drill cues
+  success: 5 of 6 forward inside three turns exiting onto a back outside edge in the H position
+  targets:
+  - basics_rotation
+  - axis_tilt
+  - air_position
+  url: https://icoachskating.com/figure-skating-jump-development-exercises-the-snizzle-chris-conte/
+- cues:
+  - gliding foot turned 90° inward - strength and control of internal rotation
+  dosage: 2x8
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: conte_backward_tstop
+  kind: on_ice
+  level: 2
+  name: Backward T-stop drill (Conte)
+  source: icoach
+  steps:
+  - Move backward on one skating leg
+  - Turn the gliding foot 90° inward (T-position)
+  - Control the strength and movement of the inward rotation
+  steps_source: drill cues
+  success: 6 of 8 stops with the gliding foot turned 90° and a straight, controlled finish
+  targets:
+  - basics_rotation
+  url: https://icoachskating.com/figure-skating-jump-development-exercises-the-snizzle-chris-conte/
+- cues:
+  - axis through CENTER of body, not through side
+  - stride on inner edges along small circle, legs stiff, toes slightly inward
+  - head elongated upward from base of skull
+  dosage: 2x5 circles
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: perna_walking_spin
+  kind: on_ice
+  level: 1
+  name: Walking two-foot spin on inside edges (Perna)
+  progression_id: perna_toe_walking
+  source: icoach
+  steps:
+  - Stand on the inside edges, stepping in a small circle
+  - Keep your legs stiff, toes slightly inward
+  - The axis of rotation passes through the center of the body, head extended up from the base of the
+    skull.
+  steps_source: drill cues
+  success: 4 of 5 circles on the inside edges with the axis through the centre of the body
+  targets:
+  - axis_tilt
+  - air_position
+  - basics_rotation
+  url: https://icoachskating.com/jump-air-position-insights-and-drills-nick-perna/
+- cues:
+  - Same but on picks - harder, reveals tilts
+  dosage: 2x4 circles
+  evidence: B
+  evidence_sources:
+  - icoach
+  id: perna_toe_walking
+  kind: on_ice
+  level: 2
+  name: Toe walking spin progression (Perna)
+  prerequisites:
+  - perna_walking_spin
+  progression_id: perna_axis_walk
+  source: icoach
+  steps:
+  - The same, but on the toe picks.
+  - More difficult, reveals inclinations.
+  steps_source: drill cues
+  success: 3 of 4 circles on the toe picks without the body tilting
+  targets:
+  - axis_tilt
+  - air_position
+  url: https://icoachskating.com/jump-air-position-insights-and-drills-nick-perna/
+- cues:
+  - Hold the front outside edge and arc WITHOUT jumping
+  - Stable on one leg 5+ seconds
+  dosage: 5 from each leg
+  evidence: B
+  evidence_sources:
+  - ast
+  exit_criteria: deep clean arc without dropping gaze
+  id: ast_edge_hold
+  kind: on_ice
+  level: 1
+  name: Edge hold and curve (prerequisite for waltz)
+  progression_id: ast_landing_hold
+  source: ast
+  steps:
+  - Stand on the front outside edge of one leg
+  - Hold the arc without jumps steadily on one leg for 5+ seconds
+  steps_source: drill cues
+  targets:
+  - basics_rotation
+  - landing_stability
+  url: https://adultsskatetoo.com/pages/waltz-jump-guide-beginners
+- cues:
+  - Back outside edge, landing position 5-10 s
+  - knee bent - absorb impact like a gymnast
+  - look forward, not down
+  dosage: 5 holds
+  evidence: B
+  evidence_sources:
+  - ast
+  id: ast_landing_hold
+  kind: on_ice
+  level: 1
+  name: Landing edge hold 5-10 s
+  progression_id: hv_back_hops_landing
+  source: ast
+  steps:
+  - Perform a back outside edge.
+  - Land with a bent knee, absorbing the impact like a gymnast
+  - Hold the position for 5-10 seconds, looking forward, not down
+  steps_source: drill cues
+  success: 'every set: the landing position on a back outside edge for 5-10 s'
+  targets:
+  - two_foot_landing
+  - landing_stability
+  - stiff_landing_knee
+  url: https://adultsskatetoo.com/pages/waltz-jump-guide-beginners
+- cues:
+  - Stability through repetition in motion
+  - moderate speed = better control
+  dosage: 2 passes
+  evidence: B
+  evidence_sources:
+  - ast
+  id: ast_sequence
+  kind: on_ice
+  level: 2
+  name: 3-5 waltz jumps in a row across the rink
+  prerequisites:
+  - ast_edge_hold
+  - ast_landing_hold
+  source: ast
+  steps:
+  - 'mark a section of the rink: 3-5 waltz jumps in a row'
+  - do not stop between jumps — the exit of one becomes the entry of the next
+  - Keep a steady rhythm; speed less than maximum
+  - if you lose the rhythm — glide to the end and start the series again
+  success: Series without stops between jumps, rhythm steady
+  targets:
+  - basics_rotation
+  - landing_stability
+  url: https://adultsskatetoo.com/pages/waltz-jump-guide-beginners

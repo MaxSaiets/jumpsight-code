@@ -1,0 +1,174 @@
+priority:
+- code: fall
+  rank: 1
+  why: 'a fall is both a traumatic risk and a sign that the element is out of control. Everything else
+    on this jump is impossible to measure: there was no exit from which to judge the rest.'
+  evidence: C
+  source: coaching convention; principle of "safety before complexity" LTAD
+- code: stiff_landing_knee
+  rank: 2
+  why: landing with a straight knee transmits impact to the joint instead of the muscles. This is not
+    about aesthetics, but about the load that accumulates daily.
+  evidence: B
+  source: biomechanics of landings, reviews of impact loads in jumps
+- code: low_height
+  rank: 3
+  why: flight time is the budget for everything else. The peak rotation speed occurs at about 64% of the
+    flight; if there is little flight, there is simply no time to complete, and all 'grouping' exercises
+    will yield nothing.
+  evidence: A
+  source: Bruening 2018; King 2005
+- code: under_rotation
+  rank: 4
+  why: the moment of impulse is set at take-off and differs little between types of jumps. Therefore,
+    under-rotation is almost always a matter of POSITION in the air (speed and density of grouping), not
+    'spin harder'. Thus, exercises must focus on collection to the axis.
+  evidence: A
+  source: Yamaguchi 2025; King 2005
+- code: air_position
+  rank: 5
+  why: direct continuation of the previous point when under-rotation is not measured
+  evidence: A
+  source: Yamaguchi 2025
+- code: axis_tilt
+  rank: 6
+  why: tilted axis extends the rotation path and disrupts the exit, but is treated after there is height
+    and collection - otherwise, the person fights the consequence.
+  evidence: B
+  source: Coaching sources on axial exercises.
+- code: two_foot_landing
+  rank: 7
+  why: landing on two feet is most often NOT an independent error, but a way to save an under-rotated
+    jump. Making it a focus before the under-rotation means treating the symptom.
+  evidence: B
+  source: coaching practice; aligned with the logic of under-rotation above
+- code: late_check_out
+  rank: 8
+  why: exit detail; makes sense when the jump is already consistently rotating
+  evidence: C
+  source: coaching convention
+- code: basics_rotation
+  rank: 9
+  why: Backup focus when nothing is measured.
+  evidence: C
+  source: —
+volume:
+  by_sessions_per_week:
+    1-2:
+      drills_per_session: 4
+      why: rare sessions - each must cover the goal completely, as the next will not be soon; but no more
+        than four new tasks at once can be retained.
+      evidence: C
+    3-4:
+      drills_per_session: 5
+      why: Basic mode that most programs are designed for.
+      evidence: C
+    5-6:
+      drills_per_session: 5
+      why: more sessions - less for each; volume is gained by frequency, not length of individual days
+      evidence: C
+    daily:
+      drills_per_session: 4
+      why: daily training requires lower daily volume, otherwise there is no recovery between them
+      evidence: B
+      source: general principles of periodization
+  focus_rule:
+    text: one goal per lesson, no more
+    why: 'hypothesis of focus: when attention is required for several things at once, none is reinforced.
+      One focus per day yields more than three.'
+    evidence: A
+    source: Salmoni, Schmidt & Walter 1984; Winstein & Schmidt 1990; Wulf 2013
+history_rules:
+- when: exercise completed with a result of "success" for 3 sessions in a row
+  action: progress
+  text: Move to the next level by progression_id.
+  why: 'call point: learning is fastest where the task is barely within reach. When it becomes stable,
+    the difficulty must be increased, otherwise training turns into repetition of already learned skills.'
+  evidence: A
+  source: Guadagnoli & Lee 2004 (challenge point framework)
+- when: exercise did not succeed 2 lessons in a row
+  action: regress
+  text: provide a preparatory exercise; if none, reduce dosage by half
+  why: 'the same call point from the other side: a task that does not work does not teach, but reinforces
+    compensation.'
+  evidence: A
+  source: Guadagnoli & Lee 2004
+- when: The same mistake persists for 4+ analyses in a row.
+  action: escalate
+  text: say directly that independent work did not shift the error, and that further requires the coach's
+    eye
+  why: transfer of off-ice exercises to the ice is not automatic; if the error does not move, the likely
+    cause is in the technique on the ice, which the phone video does not show.
+  evidence: B
+  source: Bruening & Richards 2006 (off-ice transfer not automatic)
+- when: first lesson, no history
+  action: conservative
+  text: Simplest levels, without exercises requiring safety.
+  why: human capabilities not yet measured, and erring on the side of complexity is costlier
+  evidence: C
+contraindications:
+- gate: pain
+  when: the person indicated pain
+  action: session replaced with warm-up and cool-down; training not given
+  why: pain is not a signal 'work more carefully', but a signal to stop until the cause is clarified.
+    The system cannot distinguish muscle fatigue from a stress fracture.
+  evidence: C
+  source: general safety principle
+- gate: no_coach
+  when: The coach is absent or comes rarely.
+  action: hide exercises marked as requiring insurance
+  why: without insurance, these exercises have a risk that is not justified
+  evidence: C
+- gate: low_balance
+  when: Balance on one foot less than 5 s.
+  action: do not give steps that require a stable one-legged position
+  why: exercise on unstable support without basic balance trains compensation, not target movement
+  evidence: C
+- gate: growth_spurt
+  when: age 12-15 and complaints about coordination
+  action: Reduce impact volume, increase share of technical exercises.
+  why: during periods of rapid growth, coordination temporarily decreases and load on growth areas increases
+  evidence: B
+  source: Reviews of adolescent development in sports.
+not_decidable_from_video:
+- strength capabilities (measured by separate tests, not from jump video)
+- flexibility
+- endurance and accumulated fatigue
+- injury history
+- ice quality and time on the rink
+- Takeoff edge Lutz vs Flip in most frames.
+science_gates:
+- when: measured low height or short flight
+  then: explosive work, but ONLY if the leg strength test showed no weakness
+  why: 'plyometrics increase height (A), but rely on base strength (A): weak muscles have nothing to explode'
+  science:
+  - plyometrics_raise_jump_height
+  - strength_underpins_power
+  evidence: A
+- when: measured landing with straight knee or fall
+  then: training for soft landing — before any work on spins
+  why: 'this is not aesthetics: bending the knee and hip reduces impact load and knee injury risk (A)'
+  science:
+  - landing_mechanics_injury
+  evidence: A
+- when: any off-ice exercise
+  then: control block on the ice in the same session
+  why: 'transfer is not automatic: the further the exercise from the target movement, the smaller the
+    effect (A)'
+  science:
+  - specificity
+  evidence: A
+- when: the exercise lasts 3 sessions in a row
+  then: raise the step
+  why: without increasing difficulty, adaptation stops (A)
+  science:
+  - progressive_overload
+  - challenge_point
+  evidence: A
+- when: before the main work
+  then: dynamic warm-up; leave static for the end
+  why: dynamic warm-up increases explosiveness, static temporarily decreases it (A)
+  science:
+  - warmup_raises_performance
+  - static_stretch_before_power
+  evidence: A

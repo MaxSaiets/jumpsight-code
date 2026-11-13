@@ -1,0 +1,57 @@
+# Methodology layer: session structure, levels, dosage, progressions.
+# Sources: NCCP 'Planning a Practice' (coachesontario.ca/PAPR.pdf),
+# Skate Canada LTAD, challenge point framework (Guadagnoli & Lee 2004),
+# Wulf 2013 (external focus), guidance hypothesis (Winstein & Schmidt).
+# Used as THEORY by the chat and by the lesson-library enrichment tool.
+
+session_structure:
+- text: 'Session structure (NCCP): 1) general warm-up 3-5 min; 2) specific warm-up 3-5 min - a drill that
+    imitates today''s focus at half effort; 3) MAIN 8-12 min - new technique, coordination, speed, maximum
+    power (while the athlete is fresh); 4) VOLUME 5-8 min - consolidation and endurance; 5) cool-down
+    2-3 min - static stretching. A new skill is NEVER taught in the last block.'
+  source: NCCP Planning a Practice §7.6-7.7
+- text: Flexibility stretching - only in the cool down, not in the warm-up. Mandatory off-ice warm-up
+    10-15 min before ice.
+  source: NCCP §7.7; Skate Canada LTAD
+- text: 'One focus per session and one goal for a 2-week block; full analysis of errors - at the end of
+    the session, not after each attempt (guidance hypothesis: feedback on each attempt worsens learning).'
+  source: Winstein & Schmidt 1990; Salmoni 1984
+levels:
+- text: 'Level 1 (beginner, Learn-to-Train): basic jumps up to single axel, half turns and single spins
+    off-ice, landing on two feet is acceptable as a learning step; 2-4 training sessions per week.'
+  source: Skate Canada LTAD; adultsskatetoo waltz guide
+- text: 'Level 2 (intermediate): singles confidently, 1.5 turns off-ice, doubles in progress; requirement
+    - stable one-foot landing.'
+  source: Skate Canada LTAD
+- text: 'Level 3-4 (advanced): doubles/triples, deep spin positions (Biellmann, layback with variations);
+    high amplitude flexibility exercises allowed only with existing basic flexibility.'
+  source: Skate Canada LTAD; coaching practice
+- text: During the growth spurt (mid-PHV), the volume of plyometrics is NOT increased, temporary skill
+    regression is expected.
+  source: Moran meta-analysis; NSCA LTAD
+dosage_rules:
+- text: 'Skill work: 2-3 sets of 5-10 quality reps, rest ''until ready'', stop the set after 2 consecutive
+    form breaks.'
+  source: NCCP PAPR §7.5
+- text: 'Power work (explosive jumps, plyometrics): 3-6 reps × 3-4 sets, rest 60-120 s MANDATORY, never
+    to fatigue.'
+  source: NCCP; Hunnicutt 2016
+- text: Holding positions (landing position, edge) is dosed in SECONDS of holding, not repetitions.
+  source: Physitrack parameter model
+- text: 'The challenge point rule: the correct level is when about 2 attempts out of 3 succeed. If more
+    succeed - increase difficulty, if less than one out of three - step back to an easier exercise.'
+  source: Guadagnoli & Lee 2004
+- text: 'Impact work (jumps, plyometrics) - not on consecutive days: 48-72 h of recovery between hard
+    plyometric sessions; on the days in between - skill work without impact volume, flexibility, balance.'
+  source: NSCA Essentials of Strength Training and Conditioning (plyometrics)
+cueing:
+- text: 'Maximum 1-2 cues per attempt; phrasing with an EXTERNAL focus (movement effect: ''push the ice
+    away from you'') is more effective than internal (''straighten your knee'') at all ages and levels.'
+  source: Wulf 2013; Winkelman, The Language of Coaching
+progression:
+- text: 'The criterion for moving to the next level must be measurable and observable: ''3 clean in a
+    row'', ''8 out of 10 with a hold of 3 s''. Skipping levels reinforces dirty technique.'
+  source: NCCP §7.5 step 8; spinner ladder (triangulated).
+- text: Off-ice progress does not transfer to the ice automatically - each exercise must be checked on
+    the ice separately.
+  source: Bruening & Richards 2006

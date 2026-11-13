@@ -1,0 +1,1622 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>JumpSight — jump analysis</title>
+  <!-- link preview in messengers (the demo is shared as a link) -->
+  <meta name="description" content="One phone video of a jump — the jump name, rotation count, air time and height. Every number is measured, with how sure the system is beside it.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="JumpSight — figure skating jump analysis">
+  <meta property="og:description" content="One phone video — jump name, rotations, air time and height. Every number is measured.">
+  <meta property="og:image" content="/static/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/ui.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <!-- iOS does not take the SVG from the manifest for "Add to Home Screen" — a PNG is needed -->
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="JumpSight">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#F7F9FB" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1620" media="(prefers-color-scheme: dark)">
+
+</head>
+<body>
+
+<header class="bar rz-bar" id="app-bar">
+  <div class="bar__left rz-bar__left">
+    <button class="bar__b" id="btn-back" hidden data-t-aria="back" aria-label="Back">
+      <span class="rz-bar__back-icon" aria-hidden="true">←</span>
+    </button>
+    <div>
+      <h1 class="bar__t" id="bar-title">Analyse</h1>
+      <div class="bar__sub" id="bar-sub">Jumps, rotations and phases</div>
+    </div>
+  </div>
+  <div class="rz-bar__actions">
+    <!-- the theme toggle was removed from the header — it is in Profile, and the theme
+         follows the system by default. Header: screen name, language, profile. -->
+   <button class="bar__b rz-bar__account" id="btn-account" data-t-aria="ariaProfile" aria-label="Profile">
+      <span class="rz-bar-avatar" id="bar-account-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<!-- design/3.12: the "answer ready" banner shows ONLY when the analysis has finished,
+     while the person is in the middle of a drill — it does not interrupt the set or block the screen. -->
+<div class="rz-ready" id="answer-ready-banner" role="button" tabindex="0" hidden>
+  <div class="rz-ready__main">
+    <div class="rz-ready__eyebrow" data-t="s002">ANSWER READY · WHILE YOU TRAIN</div>
+    <div class="rz-ready__text" id="answer-ready-banner-text"></div>
+  </div>
+  <span class="rz-ready__action" data-t="s003">Open →</span>
+</div>
+
+<main id="main">
+
+  <!-- ─────────── 1. TODAY (design 3.3) ─────────── -->
+  <section class="scr rz rz-today" id="scr-today" hidden>
+    <!-- two columns at ≥900 px — on the left is the live training,
+         wellbeing, week plan; on the right — the day's session. On a phone
+         the wrappers are transparent (display: contents), and the CSS order sets the sequence. -->
+    <div class="rz-col rz-col--a">
+    <!-- the date is redundant — the phone shows it itself, and next to
+         the streak it broke onto two lines. Only one streak line remains. -->
+    <div class="rz-today__meta">
+      <span class="streak-badge rz-streak" id="today-streak" hidden></span>
+    </div>
+         action of the "Training" screen stayed in Ukrainian. -->
+    <!-- the eyebrow "Live training" above this same heading —
+         a kicker above the headline, both saying the same thing (craft-floor: a banner-style
+         eyebrow above a heading is always forbidden). The heading already
+         explains what it is — "put the phone up and skate" — and the paragraph under it
+         says "that's it", leaving no room for doubt about the nature of the card. -->
+    <!-- the card was solid red and shouted over the main
+         action of the screen (the session). Now it is a secondary line, as on "Analysis". -->
+    <div class="card rz-live-card" id="card-train-live">
+      <h2 class="rz-live-card__t" data-t="liveCardTitle">Prop up the phone and skate</h2>
+      <p class="rz-live-card__p" data-t="liveCardDesc">Every jump is analysed on its own while you are on the ice. Tap “Stop → analyse” for a breakdown of all attempts.</p>
+      <button class="btn btn--outline rz-live-card__btn" id="btn-train-live" data-t="liveCardBtn">Record an on-ice session</button>
+      <p class="rz-live-card__note" id="train-live-note" hidden></p>
+    </div>
+
+    <!-- wellbeing was the LAST item on the screen — below the session,
+         whose volume it itself changes. The question about the legs goes before the plan. -->
+    <div class="card rz-pcard" id="card-readiness" hidden>
+      <span class="rz-eyebrow" data-t="readinessEyebrow">How you feel today</span>
+      <div class="rz-check__t" data-t="readinessQuestion">How do your legs feel after the last session?</div>
+      <div class="readiness-grid rz-readiness">
+        <button class="readiness-b" data-rpe="fresh" data-t="rpeFresh">Fresh</button>
+        <button class="readiness-b is-on" data-rpe="okay" data-t="rpeOkay">Okay</button>
+        <button class="readiness-b" data-rpe="tired" data-t="rpeTired">Tired</button>
+      </div>
+      <div class="rz-note" id="readiness-note" data-t="readinessNote">Default is “Okay”. Change it and the session adapts.</div>
+    </div>
+
+
+    <div class="card rz-one" id="card-coach-word" hidden>
+      <span class="rz-eyebrow">From your coach</span>
+      <div class="rz-one__t" id="coach-word-text"></div>
+      <div class="rz-note" id="coach-word-meta"></div>
+    </div>
+
+    <div class="card rz-log" id="card-week-plan" hidden>
+      <div class="rz-log__head rz-log__head--click" id="week-plan-head">
+        <div class="rz-session__ttl">
+          <h3 class="rz-log__t" data-t="weekPlanTitle">Plan for the week</h3>
+          <div class="rz-log-row__sub" id="week-plan-meta"></div>
+        </div>
+        <span class="rz-acc__plus mono" id="week-plan-caret">+</span>
+      </div>
+      <div id="week-plan-body" hidden>
+        <div class="rz-plan__note" id="week-plan-focus"></div>
+        <div id="week-plan-rows"></div>
+        <div class="rz-plan__note" id="week-plan-note"></div>
+      </div>
+    </div>
+
+
+    <!-- Terms and the assistant lived in today-focus-wrap, which never
+         expanded — there was no path to them from "Training". -->
+    <div class="rz-quiet-links rz-today__links">
+      <button class="btn btn--outline" id="btn-today-ask3" data-t="todayAskLink">Ask the coach: technique, rules, drills</button>
+      <button class="quiet-link" id="btn-today-learn3" data-t="todayLearnLink">Glossary: terms and ISU rules</button>
+    </div>
+    </div>
+    <div class="rz-col rz-col--b">
+    <!-- this block was `hidden` with no code that removes
+         hidden — its own heading and description, and a THIRD copy of "Terms and
+         rules" / "Ask the assistant" were never shown to any user.
+         The coach.js comment confirms: "a separate
+         overlay under the hero was removed" — the day's focus moved into
+         the session card subtitle (today-session-sub below), "why" —
+         into today-why-details, and this was left in without being deleted. Deleted. -->
+    <div class="card rz-log rz-session" id="card-today-session">
+      <div class="rz-log__head rz-session__head">
+        <div class="rz-session__ttl">
+          <h3 class="rz-log__t" data-t="todaySessionTitle">Today's session</h3>
+          <div class="rz-log-row__sub" id="today-session-sub"></div>
+        </div>
+        <span class="rz-log__filter" id="today-session-meta"></span>
+      </div>
+      <div id="today-blocks-list"></div>
+      <details id="today-why-details" class="rz-details rz-session__why" hidden>
+        <summary data-t="whySession">Why this session</summary>
+        <ul id="today-why-list" class="rz-session__why-list"></ul>
+      </details>
+    </div>
+
+    <div class="rz-stack rz-stack--tight">
+      <p id="today-fitness-warning" class="rz-note" role="status" aria-live="polite" hidden></p>
+      <button class="btn btn--primary btn--huge" id="btn-start-session"><span data-t="continueSession" id="btn-start-session-label">Start session · block 1 of 5</span></button>
+      <button class="quiet-link rz-quiet-btn" id="btn-mark-done" hidden><span data-t="markDoneAll">Did the whole session? Mark it done</span></button>
+    </div>
+
+    </div>
+  </section>
+
+  <!-- ─────────── 2. RECORD / WAITING (3.1 / 3.2) ─────────── -->
+  <section class="scr rz" id="scr-record">
+    <!-- the coach's request lived only in the collapsed "My coach" in the profile —
+         the student did not learn about it, and the coach waited forever. Now it is here. -->
+    <div class="card rz-coach-req" id="coach-request-banner" role="status" hidden>
+      <div class="rz-coach-req__t" id="coach-request-text"></div>
+      <div class="rz-coach-req__btns">
+        <button class="btn btn--primary btn--sm" id="btn-req-accept">Accept</button>
+        <button class="btn btn--outline btn--sm" id="btn-req-reject">Decline</button>
+      </div>
+    </div>
+    <div class="rz-record" id="rec-intro">
+      <header class="rz-hero">
+        <h2 class="rz-hero__t" data-t="recTitle">Film a jump</h2>
+        <p class="rz-hero__s" data-t="recDesc">Upload a jump video for its name, rotation count and measurement details.</p>
+      </header>
+
+      <div id="rec-fail-note" class="rz-alert rz-alert--bad" role="alert" tabindex="-1" hidden>
+        <h3 class="rz-alert__t" id="rec-fail-title" data-t="analysisFailedTitle">Could not finish the analysis</h3>
+        <p class="rz-alert__p" id="rec-fail-reason"></p>
+        <button class="btn btn--outline btn--sm" id="btn-retry-analysis" hidden data-t="retryAnalysis">Try again</button>
+        <button class="btn btn--outline btn--sm" id="btn-discard-live" hidden></button>
+      </div>
+
+      <!-- Declared jump: optional. The person names the jump,
+           the system checks the claim and stores it as a label (pre_reveal). -->
+      <div class="record-declare" id="record-declare">
+        <span class="record-declare__t" data-t="declareTitle">Which jump? Optional, the system will check it</span>
+        <div class="rz-chips" id="declare-chips" role="group" aria-labelledby="declare-title"></div>
+        <div class="rz-chips record-declare__turns" id="declare-turns" hidden role="group" aria-label="How many rotations"></div>
+        <label class="record-consent" id="train-consent-row" hidden><input type="checkbox" id="train-consent"> <span data-t="trainConsent">Allow this video and claim to be used to train the system</span></label>
+      </div>
+      <div class="rz-drop record-upload" id="record-drop-zone">
+        <button class="btn btn--primary btn--huge" id="btn-shoot-cam"><span data-t="btnShoot">Record now</span></button>
+        <input type="file" id="file-camera" accept="video/*" capture="environment" hidden>
+        <button class="btn btn--outline btn--huge" id="btn-upload-video" aria-describedby="record-file-hint">
+          <span data-t="btnUpload">Choose from gallery</span>
+        </button>
+        <input type="file" id="file-picker" accept="video/*,.mov,.mkv,.avi,.m4v" hidden>
+        <p class="rz-drop__hint record-file-hint" id="record-file-hint" data-t="recordFileHint">MP4 or MOV from your phone · analysis starts right away</p>
+        <span class="rz-drop__dnd record-drop-hint" data-t="recordDropHint">Or drag a video here</span>
+      </div>
+      <p class="record-guide" data-t="recordHonest">Any phone video is fine. The result says what it could and could not measure, and why.</p>
+      <!-- An example of a real analysis for a first visit (tools/demo_job.py).
+           Hidden until the server names at least one example. -->
+      <!-- the example — the first thing a person does without a video at hand
+           (investor, parents). A card, not a silent link. -->
+      <div class="record-demo rz-demo" id="record-demo" hidden>
+        <div class="rz-demo__txt">
+          <div class="rz-demo__t" data-t="demoCardTitle">No video at hand?</div>
+          <div class="rz-demo__s" data-t="demoCardSub">Open a real analysis of a real jump. These are the same screens you will get.</div>
+        </div>
+        <label for="demo-choose" id="demo-choose-label" class="rz-note" data-t="demoChooseLabel" hidden>Sample analysis</label>
+        <select id="demo-choose" class="rz-input" aria-labelledby="demo-choose-label" hidden></select>
+        <button type="button" class="btn btn--outline" id="btn-demo-sample" data-t="btnDemoSample">See a sample analysis</button>
+      </div>
+
+      <div class="rz-live-cta record-secondary">
+        <button class="rz-live-btn" id="btn-live-rec" hidden>
+          <span class="rz-live-btn__dot" aria-hidden="true"></span>
+          <span class="rz-live-btn__txt">
+            <b data-t="btnLiveRec">Live recording: training with feedback</b>
+          </span>
+          <span class="rz-chev" aria-hidden="true">›</span>
+        </button>
+      </div>
+      <p class="rz-note record-explainer" data-t="recordExplainer"></p>
+
+      <div class="rz-last card" id="card-last-answer" role="button" tabindex="0" hidden>
+        <div class="rz-last__head">
+          <span class="rz-eyebrow" data-t="lastAnswerEyebrow">Last answer</span>
+          <span class="rz-link" data-t="openCard">Open analysis</span>
+        </div>
+        <div class="rz-last__row">
+          <div class="rz-last__num">
+            <div class="rz-last__val mono" id="last-ans-rev">—</div>
+            <div class="rz-last__lbl" data-t="lastAnsRevLbl">rotations in flight</div>
+          </div>
+          <div class="rz-last__txt">
+            <div class="rz-last__name" id="last-ans-name" data-t="s004">No records</div>
+            <div class="rz-last__verdict" id="last-ans-verdict" data-t="s005">Upload a video to analyse</div>
+          </div>
+        </div>
+        <div class="rz-last__sub" id="last-ans-sub" data-t="s006"></div>
+      </div>
+
+      <div id="live-rec" hidden class="live">
+        <video id="live-rec-video" autoplay muted playsinline class="live__video"></video>
+        <div class="live__top">
+          <span class="live__rec"><i></i><span id="live-rec-timer">00:00</span></span>
+          <span id="live-cam-settings" class="live__net" role="status"></span>
+          <span id="live-rec-net" class="live__net">—</span>
+        </div>
+        <div class="live__hero" id="live-hero" hidden>
+          <div class="live__hero-name" id="live-hero-name">—</div>
+          <div class="live__hero-verdict" id="live-hero-verdict"></div>
+          <div class="live__hero-cue" id="live-hero-cue" aria-live="polite"></div>
+        </div>
+        <div id="live-feed" class="live__feed">
+          <div id="live-feed-head" class="live__feed-head">Waiting for the first jump…</div>
+          <div id="live-feed-rows"></div>
+        </div>
+        <div class="live__bar">
+          <button class="btn btn--outline live__cancel" id="btn-live-cancel"><span data-t="liveCancel">Cancel</span></button>
+          <button class="btn btn--primary live__stop" id="btn-live-stop"><span data-t="liveStop">■ Stop → analyse</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="rz-wait" id="rec-waiting" aria-busy="false" hidden>
+      <!-- "Analyzing the jump" (eyebrow) above "Preparing your analysis"
+           (heading) — the same fact twice in a row. One heading. -->
+      <div class="rz-wait__card wait-card">
+        <h2 class="rz-wait__t" id="wait-title" tabindex="-1" data-t="waitVideo">Preparing your analysis</h2>
+        <p id="wait-file-name" class="rz-wait__file wait-file-name" hidden></p>
+
+        <div class="rz-progress progress-bar-wrap" aria-hidden="true">
+          <div class="rz-progress__fill progress-bar-fill is-indeterminate" id="wait-prog-bar"></div>
+        </div>
+        <div class="rz-wait__status">
+          <span id="wait-stage-name" role="status" aria-live="polite">Uploading the video</span>
+          <span class="mono" id="wait-time-left"></span>
+        </div>
+        <!-- /status has long returned total/done (found and analyzed
+             attempts), elapsed and eta_lo/eta_hi — and the screen showed only the name
+             of the stage. The counters are in the list of steps below; the time and forecast
+             are in wait-time-left. -->
+        <p class="rz-note" id="wait-eta" data-t="waitEta">Time depends on the video length. No need to wait here: we will tell you when it is ready.</p>
+        <p id="wait-connection" class="rz-alert rz-alert--warn wait-connection" role="status" hidden></p>
+        <!-- Silent engine failures (jumpsight_error, e2e_error…) arrive in
+             /status as warnings; WARN_TEXT in app.js translates them. Until
+             15.09 these keys were shown nowhere — invariant §2.4 was violated. -->
+        <p id="wait-warn" class="rz-alert rz-alert--warn" role="status" hidden></p>
+
+        <!-- the preview plays by itself (muted+loop+autoplay and an explicit
+             play()), without native player buttons; the badge is a line UNDER the frame,
+             so nothing overlaps at any width. If the browser
+             blocked autoplay — an honest ▶ button in the center of the frame. -->
+        <div class="rz-video vid-box rz-wait__video">
+          <div class="rz-video__stage vid-stage" id="wait-vid-stage">
+            <video id="wait-live-video" playsinline muted loop autoplay preload="auto" disablepictureinpicture></video>
+            <button type="button" class="rz-wait__play" id="btn-wait-play" hidden data-t-aria="waitPlay" aria-label="Play video">▶</button>
+          </div>
+          <div class="rz-video__badge rz-video__badge--below" id="wait-vid-badge">
+            <span class="rz-video__pulse" aria-hidden="true"></span>
+            <span id="wait-vid-badge-text" data-t="s008">YOUR VIDEO · ANALYSIS RUNNING ON THE SERVER</span>
+          </div>
+        </div>
+        <!-- W2: early MEASURED numbers before the full answer — only
+             what the engine has already sent in /status.early (attempt window, flight
+             time). No number in the event — no line. -->
+        <div class="rz-wait__early" id="wait-early" hidden>
+          <p class="rz-wait__found" id="wait-early-found" role="status" aria-live="polite"></p>
+          <div class="rz-metric rz-wait__air" id="wait-early-air" hidden>
+            <span class="rz-eyebrow" data-t="waitEarlyAir">In the air</span>
+            <b class="mono" id="wait-early-air-v"></b>
+          </div>
+        </div>
+        <!-- W4: while the server computes — the question "what did you jump?"
+             with the same options as "Which jump was it?" on the answer.
+             Only if the jump was not declared before loading. The answer goes
+             as a pre_reveal label (before the numbers are shown) through the same route
+             /coach/verdict_feedback, as soon as the stem of the first attempt is known. -->
+        <div class="rz-wait__ask" id="wait-ask" hidden>
+          <span class="rz-eyebrow" data-t="waitAskEyebrow">While you wait</span>
+          <h3 class="rz-wait__ask-t" data-t="waitAskTitle">What did you jump?</h3>
+          <p class="rz-note rz-wait__ask-why" data-t="waitAskWhy">Your answer, given before you see the numbers, teaches the system the most.</p>
+          <div class="rz-chips" id="wait-ask-jumps" role="group" data-t-aria="waitAskTitle" aria-label="What did you jump?"></div>
+          <div id="wait-ask-turns-box" hidden>
+            <div class="rz-check__lbl" data-t="vcTurns">How many rotations?</div>
+            <div class="rz-chips" id="wait-ask-turns" role="group" data-t-aria="vcTurns" aria-label="How many rotations?"></div>
+          </div>
+          <p class="rz-note rz-wait__ask-saved" id="wait-ask-saved" role="status" aria-live="polite" hidden></p>
+        </div>
+
+        <ol class="rz-stages">
+          <!-- Four steps = four real server stages (probe, jumpsight,
+               pose, verdict). The labels and counters are written by app.js:updateStageVisuals. -->
+          <li class="rz-stage" id="stg-1">
+            <span class="rz-stage__ic mono" id="stg-1-icon">○</span>
+            <span class="rz-stage__t" data-t="stgAttempts">Reading the video</span>
+            <span class="rz-stage__v mono" id="stg-attempts-val"></span>
+          </li>
+          <li class="rz-stage" id="stg-2">
+            <span class="rz-stage__ic mono" id="stg-2-icon">○</span>
+            <span class="rz-stage__t" data-t="stgRotation">Finding you and your jumps</span>
+            <span class="rz-stage__v mono" id="stg-2-val"></span>
+          </li>
+          <li class="rz-stage" id="stg-3">
+            <span class="rz-stage__ic mono" id="stg-3-icon">○</span>
+            <span class="rz-stage__t" data-t="stgPhases">Measuring rotation</span>
+            <span class="rz-stage__v mono" id="stg-3-val"></span>
+          </li>
+          <li class="rz-stage" id="stg-4">
+            <span class="rz-stage__ic mono" id="stg-4-icon">○</span>
+            <span class="rz-stage__t" data-t="stgVerdict">Answer</span>
+            <span class="rz-stage__v mono" id="stg-4-val"></span>
+          </li>
+        </ol>
+
+        <button class="btn btn--outline" id="btn-skip-waiting-to-answer">
+          <span data-t="s011">Go to training for now</span>
+        </button>
+        <!-- not the right file — previously the only exit was to wait until the end -->
+        <button class="quiet-link rz-quiet-btn" id="btn-cancel-analysis" data-t="cancelAnalysis">Cancel this analysis</button>
+
+        <div id="wait-warmup-card" class="rz-warm" hidden>
+          <span class="rz-eyebrow rz-eyebrow--onaction" data-t="waitWarmupEyebrow">Use the minutes · warm-up block</span>
+          <h3 class="rz-warm__t" id="wait-warmup-name" data-t="s012">Warm-up</h3>
+          <p class="rz-warm__p" id="wait-warmup-dosage"></p>
+          <button class="btn rz-warm__btn" id="btn-wait-warmup"><span data-t="startWarmup">Start warm-up</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scr rz rz-ans" id="scr-answer" hidden>
+    <div class="rz-ans__media">
+      <div class="rz-attnav" id="ans-attempt-nav" hidden>
+        <span class="rz-eyebrow" data-t="s013">ATTEMPTS IN THIS VIDEO</span>
+        <div class="rz-seg" id="ans-attempt-pills-wrap">
+          <button class="rz-seg__b" id="btn-att-prev" data-t-aria="previousAttempt" aria-label="Previous attempt">‹</button>
+          <button class="rz-seg__v rz-seg__v--btn mono" id="ans-att-pos" type="button" data-t-title="attemptsListTitle" title="List of all attempts">1 / 1</button>
+          <button class="rz-seg__b" id="btn-att-next" data-t-aria="nextAttempt" aria-label="Next attempt">›</button>
+        </div>
+      </div>
+
+      <div class="rz-video vid-box">
+        <div class="rz-video__stage vid-stage" id="ans-vid-stage">
+          <video id="ans-video" playsinline loop muted autoplay></video>
+          <canvas id="ans-skeleton-canvas" class="rz-video__overlay"></canvas>
+          <iframe id="ans-avatar-frame" class="rz-video__avatar" title="3D"></iframe>
+          <div class="rz-video__time mono" id="vid-time-display">0:00</div>
+        </div>
+        <!-- THE SEEK BAR. The player had none — to seek
+             a jump one could only use the buttons. The bar covers the attempt window
+             (take-off − 1 s … landing + 1 s), flight highlighted, take-off and
+             landing marked — and "full recording" extends to the whole video. -->
+        <div class="rz-scrub" id="ans-scrub" hidden>
+          <div class="rz-scrub__track">
+            <div class="rz-scrub__flight" id="ans-scrub-flight"></div>
+            <input type="range" class="rz-scrub__range" id="ans-scrub-range" min="0" max="1000" step="1" value="0" data-t-aria="scrubAria" aria-label="Seek the video">
+          </div>
+          <div class="rz-scrub__row">
+            <span class="rz-scrub__now mono" id="ans-scrub-now">0.00 s</span>
+            <span class="rz-scrub__phase" id="ans-scrub-phase"></span>
+            <!-- "large" — a frame that follows the skater's measured trace -->
+            <button type="button" class="rz-link rz-link--btn rz-scrub__all" id="btn-follow" hidden aria-pressed="false">close-up</button>
+            <button type="button" class="rz-link rz-link--btn rz-scrub__all" id="btn-scrub-all" data-t="scrubAll">whole video</button>
+          </div>
+        </div>
+        <div class="rz-toolbar video-controls" role="group" data-t-aria="videoControls" aria-label="Video controls">
+          <!-- frame back / forward always visible (previously hidden behind
+               "frame by frame"), speed — one tap cycling 1× → ½× → ¼×. -->
+          <button class="rz-tool" id="btn-frame-prev" data-t-aria="previousFrame" aria-label="Previous frame">◀︎ <span class="rz-tool__lbl" data-t="frameBack">frame</span></button>
+          <button class="rz-tool rz-tool--play" id="btn-frame-play" data-t-aria="playPause" aria-label="Pause / play">⏯</button>
+          <button class="rz-tool" id="btn-frame-next" data-t-aria="nextFrame" aria-label="Next frame"><span class="rz-tool__lbl" data-t="frameFwd">frame</span> ▶︎</button>
+          <button class="rz-tool" id="btn-speed-toggle" data-t-title="videoSpeedTitle" title="Video speed">1.0x <span class="speed-pill__w" data-t="speedWord">speed</span></button>
+          <button class="rz-tool" id="btn-frame-toggle" hidden data-t="frameStepBtn">frame by frame</button>
+          <!-- the "Analysis tools" label pushed the button onto
+               a second line; now it is an icon, and the word — only where there is room (CSS). -->
+          <button class="rz-tool rz-tool--more" id="btn-tools-toggle" aria-expanded="false" aria-controls="ans-tools" data-t-aria="toolsToggle" aria-label="Analysis tools"><span aria-hidden="true">⋯</span><span class="rz-tool__word" data-t="toolsToggleShort">tools</span></button>
+        </div>
+        <!-- key hint — only where there is a keyboard (CSS: hover+fine pointer) -->
+        <div class="rz-keys" aria-hidden="true"><span data-t="keysHint">← → frame · Shift — 10 frames · space — pause · [ ] — attempt</span></div>
+        <div id="ans-tools" class="rz-toolbar rz-toolbar--sub" hidden>
+          <button class="rz-tool" id="btn-compare" data-t="cmpOpen" hidden>⇆ Compare</button>
+          <button class="rz-tool" id="btn-fullscreen" data-t-title="fullscreenTitle" title="Video full screen" data-t="fullscreenBtn">⤢ Full screen</button>
+          <button class="rz-tool" id="btn-toggle-skeleton" data-t-title="skeletonOverlayTitle" title="Biomechanics overlay" data-t="s022">🦴 Skeleton</button>
+          <button class="rz-tool" id="btn-toggle-avatar3d" data-t-title="avatar3dTitle" title="3D jump avatar" data-t="s023">🧊 3D avatar</button>
+          <button class="rz-tool" id="btn-zoom-toggle" data-t-title="zoomTitle" title="Zoom foot/blade">🔍</button>
+          <button class="rz-tool" id="btn-voice-verdict" data-t-title="voiceTitle" title="Voice narration" data-t="s024">🔊 Read aloud</button>
+        </div>
+        <div class="rz-phases phase-wrap">
+          <div class="phase-strip" id="phase-strip" aria-hidden="true">
+            <div class="phase-strip__takeoff" id="ph-takeoff" style="width:13%"></div>
+            <div class="phase-strip__div"></div>
+            <div class="phase-strip__flight" id="ph-flight" style="width:71%"></div>
+            <div class="phase-strip__div"></div>
+            <div class="phase-strip__landing" id="ph-landing" style="width:14%"></div>
+          </div>
+          <div class="phase-labels">
+            <button type="button" id="lbl-ph-takeoff" disabled data-t="s019">takeoff —</button>
+            <button type="button" id="lbl-ph-flight" disabled data-veil data-veil-ph="•••" data-t="s020">flight —</button>
+            <button type="button" id="lbl-ph-landing" disabled data-t="s021">landing —</button>
+          </div>
+          <p class="rz-note" id="ans-phase-seek-note" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rz-ans__body">
+      <!-- analysis from someone else's link — an invitation to analyze your own -->
+      <div class="rz-shared" id="ans-shared-banner" hidden>
+        <div class="rz-shared__t" data-t="sharedTitle">Someone shared a jump analysis with you</div>
+        <div class="rz-shared__s" data-t="sharedSub">Want the same for your jump? One phone video, an answer in about a minute.</div>
+        <button class="btn btn--primary" id="btn-shared-cta" data-t="sharedCta">Analyse my jump</button>
+      </div>
+      <div class="rz-result card">
+        <div class="verdict-banner verdict-banner--clean scorecard__name" id="ans-verdict-box">
+          <h2 class="rz-result__t verdict-banner__t" id="ans-verdict-t" data-veil data-t="s017">Jump analysis</h2>
+          <!-- "what does this mean?" always opened the ISU letter about
+               under-rotation (q/<) — a term that does not exist on this screen. Now
+               it expands the explanation of THESE numbers (app.js:renderAttempt), and
+               the ISU rules — as a separate link inside the explanation. -->
+          <div class="rz-result__links">
+            <button class="rz-link rz-link--btn" id="btn-verdict-term" aria-expanded="false" aria-controls="ans-rotation-explainer">
+              <span data-t="whatIsThis">what does this mean?</span>
+            </button>
+            <!-- the video below the measurements — and to it now
+                 one tap, from the take-off, without a glove-like scroll -->
+            <button class="rz-link rz-link--btn" id="btn-watch-jump" hidden><span data-t="watchJump">▶ watch the jump</span></button>
+            <button class="rz-link rz-link--btn" id="btn-hero-share"><span data-t="heroShare">↗ share</span></button>
+          </div>
+        </div>
+        <div class="rz-result__eyebrow rz-result__meta" id="ans-attempt-eyebrow" data-veil data-veil-ph="•••" data-t="s015" hidden>JUMP ANALYSIS</div>
+        <div class="rz-revs scorecard__metrics">
+          <div class="rz-revs__num hero-num" id="ans-hero-num" data-veil data-veil-ph="•••">—</div>
+          <div class="rz-revs__lbl" data-t="s016">ROTATIONS</div>
+        </div>
+        <!-- the explanation is about the SCORE ("score — by time
+             of flight…"), but it stood under the name and read as an explanation of the name -->
+        <p class="rz-result__s verdict-banner__s" id="ans-verdict-s" data-veil data-veil-ph="•••" data-t="s018">Assessed under ISU rules</p>
+        <div class="rz-note rz-explain" id="ans-rotation-explainer" hidden></div>
+        <!-- personal record — only when the excess is greater than
+             the error of both measurements (from one's own journal) -->
+        <div class="rz-record" id="ans-record" hidden></div>
+      </div>
+
+      <div class="rz-one card" id="card-one-thing">
+        <span class="rz-eyebrow" data-t="oneThingEyebrow">THE ONE THING</span>
+        <div class="rz-one__t" id="ans-one-thing">—</div>
+      </div>
+
+      <!-- measurements were hidden behind the button
+           "Show measurement", and only the video and the buttons stayed on screen — "nothing
+           is clear, where is all the info". Now the measurements show at once, as four tiles:
+           time in the air, height, rotations in flight (when measured), rotation speed
+           (when measured). A tile without a number is not shown. -->
+      <div class="rz-metrics grid-2" id="ans-metrics">
+        <div class="rz-metric metric-box" id="tile-air">
+          <span class="rz-eyebrow" data-t="airTime">Air time</span>
+          <div class="rz-metric__v metric-box__v" data-veil data-veil-ph="•••"><span id="ans-air-time">—</span> <span class="rz-metric__u metric-box__unit" data-t="s025">s</span> <span class="rz-metric__u metric-box__unit" id="ans-air-band"></span></div>
+          <div class="rz-metric__s" id="ans-air-prev"></div>
+        </div>
+        <div class="rz-metric metric-box" id="tile-height">
+          <span class="rz-eyebrow" data-t="jumpHeight">Height</span>
+          <div class="rz-metric__v metric-box__v" data-veil data-veil-ph="•••"><span id="ans-height">—</span> <span class="rz-metric__u metric-box__unit" data-t="s026">cm</span> <span class="rz-metric__u metric-box__unit" id="ans-height-band"></span></div>
+          <div class="rz-metric__s" id="ans-height-prev"></div>
+        </div>
+        <div class="rz-metric metric-box" id="tile-rev" hidden>
+          <span class="rz-eyebrow" data-t="flightRevs">Rotations in flight</span>
+          <div class="rz-metric__v metric-box__v" data-veil data-veil-ph="•••"><span id="ans-rev">—</span> <span class="rz-metric__u metric-box__unit" id="ans-rev-band"></span></div>
+          <div class="rz-metric__s" data-t="flightRevsNote">flight only; the rest of the turn is on take-off and check-out</div>
+        </div>
+        <div class="rz-metric metric-box" id="tile-rate" hidden>
+          <span class="rz-eyebrow" data-t="rotRate">Rotation speed in flight</span>
+          <div class="rz-metric__v metric-box__v" data-veil data-veil-ph="•••"><span id="ans-rate-v">—</span> <span class="rz-metric__u metric-box__unit" id="ans-rate-u">rotations/s</span></div>
+          <div class="rz-metric__s" id="ans-rate-s"></div>
+        </div>
+      </div>
+
+      <div class="rz-guess card" id="card-guess" hidden>
+        <span class="rz-eyebrow" data-t="guessEyebrow">YOUR CALL FIRST</span>
+        <div class="rz-guess__t" data-t="guessTitle">What jump was that?</div>
+        <p class="rz-note" data-t="guessDesc">Your answer first, the measurement second. That trains your own feel instead of just reading a number.</p>
+        <div id="guess-jump-btns" class="rz-chips"></div>
+        <div id="guess-turns-wrap" hidden>
+          <div class="rz-check__lbl" data-t="guessTurns">How many rotations do you think you got?</div>
+          <div id="guess-turn-btns" class="rz-chips"></div>
+        </div>
+        <div class="rz-stack">
+          <button class="btn btn--primary" id="btn-guess-reveal" data-t="guessReveal">Show the measurement</button>
+          <button class="btn btn--outline" id="btn-guess-skip" data-t="guessSkip">Just show the numbers</button>
+        </div>
+      </div>
+
+      <div class="rz-log card rz-errs" id="card-errors">
+        <div class="rz-log__head">
+          <h3 class="rz-log__t" data-t="errCardTitle">Execution errors</h3>
+          <span class="rz-log__filter" id="ans-err-count"></span>
+        </div>
+        <div id="ans-errors-body" class="rz-errs__body"></div>
+      </div>
+
+      <!-- B3: the people's labels — the only confirmed path to accuracy,
+           while "Add feedback" stood as a collapsed grey line at the bottom. A short
+           line under the measurements: "Yes" — one label with one tap; "No" —
+           expands the same correction form. It sends nothing itself and does not expand
+           the form (real_report_ui_smoke). -->
+      <div class="rz-quick-check card" id="vc-quick" hidden>
+        <span class="rz-quick-check__t" id="vc-quick-t">Did the system get the jump right?</span>
+        <div class="rz-quick-check__btns" id="vc-quick-btns"></div>
+      </div>
+
+      <!-- An automatic result does not need a manual label. Feedback
+           opens voluntarily; the lutz/flip pair is the mode of this card. -->
+      <details class="rz-details" id="verdict-feedback">
+        <summary data-t="vcOptional">Give feedback on the analysis</summary>
+      <div class="rz-check card" id="card-verdict-check">
+        <div class="rz-check__q">
+          <span class="rz-check__t" id="vc-title" data-t="vcTitle">Is this right?</span>
+          <span class="rz-check__d" id="vc-desc" data-t="vcDesc">Feedback helps review analysis quality. It is optional.</span>
+        </div>
+        <div class="rz-check__btns" id="vc-yesno">
+          <button class="btn btn--outline btn--sm" id="btn-vc-yes" data-t="vcYes">Yes, correct</button>
+          <button class="btn btn--outline btn--sm" id="btn-vc-no" data-t="vcNo">No, fix it</button>
+        </div>
+        <div class="rz-check__btns" id="vc-pair-btns" hidden></div>
+        <button class="quiet-link rz-quiet-btn" id="btn-vc-other" hidden data-t="vcOther">A different jump or a different rotation count</button>
+        <div id="vc-hint" class="rz-check__hint" hidden></div>
+        <div id="vc-fix" class="rz-check__fix" hidden>
+          <div class="rz-check__lbl" data-t="vcPick">Which jump was it?</div>
+          <div id="vc-jump-btns" class="rz-chips"></div>
+          <div class="rz-check__lbl" data-t="vcTurns">How many rotations?</div>
+          <div id="vc-turn-btns" class="rz-chips"></div>
+          <button class="btn btn--primary" id="btn-vc-save" data-t="vcSave">Save correction</button>
+        </div>
+        <div id="vc-thanks" class="rz-check__thanks" hidden></div>
+      </div>
+      </details>
+
+      <!-- "What the coach will do with this" was a collapsed line in
+           the error card — the most useful thing for the skater (what to do next)
+           was hidden behind a tap. Now a separate card with the focus and the first
+           drill from the live day plan (/coach/today), without invented tips. -->
+      <div class="card rz-next" id="card-next-step" hidden>
+        <span class="rz-eyebrow" data-t="nextStepEyebrow">Next step</span>
+        <div class="rz-next__focus" id="next-step-focus"></div>
+        <div class="rz-next__drill" id="next-step-drill" hidden>
+          <div class="rz-next__name" id="next-step-name"></div>
+          <div class="rz-next__meta" id="next-step-meta"></div>
+          <div class="rz-next__cue" id="next-step-cue"></div>
+        </div>
+        <button class="btn btn--outline" id="btn-next-step" data-t="nextStepBtn">Open the session</button>
+      </div>
+
+      <div class="rz-stab card" id="card-stability" hidden>
+        <div class="rz-stab__head">
+          <span class="rz-eyebrow" data-t="s029">STABILITY AND GLIDE</span>
+          <span class="rz-stab__score mono" id="ans-stability-score"></span>
+        </div>
+        <h3 class="rz-stab__t" id="ans-stability-category" data-t="s030">Strong stability and a smooth exit</h3>
+        <dl class="rz-kv">
+          <div class="rz-kv__row"><dt data-t="s031">Landing knee angle:</dt><dd class="mono" id="ans-knee-angle">—</dd></div>
+          <div class="rz-kv__row"><dt data-t="s032">Torso lean:</dt><dd class="mono" id="ans-torso-tilt">—</dd></div>
+        </dl>
+        <p class="rz-stab__cue" id="ans-stability-cue" data-t="s033">The exit position is clean and the knee absorbs the load softly.</p>
+      </div>
+
+      <!-- OVERVIEW OF ALL ATTEMPTS. The pager "1 / 7" at the top does not say
+           WHAT is in the other six. The coach needs a list: time in the video, name,
+           score, main error — and a tap leads to the attempt. It appears
+           only when there is more than one attempt. -->
+      <div class="rz-log card" id="card-attempts" hidden>
+        <div class="rz-log__head">
+          <h3 class="rz-log__t" data-t="attemptsTitle">All attempts in this video</h3>
+          <span class="rz-log__filter" id="attempts-meta"></span>
+        </div>
+        <div id="attempts-rows"></div>
+        <p class="rz-note rz-log__foot" id="attempts-foot" hidden></p>
+      </div>
+
+      <!-- service information (what is not measured and why) — collapsed, at the bottom.
+           It does not disappear (invariant "no silent failures"), but it also does not take
+           the first screen of the person who needs the answer. -->
+      <details class="rz-nm card rz-details" id="card-not-measured" hidden>
+        <summary data-t="notMeasuredTitle">Measurement details</summary>
+        <div id="ans-not-measured-body" class="rz-nm__body"></div>
+      </details>
+
+      <div class="rz-comments card" id="card-comments" hidden>
+        <span class="rz-eyebrow" id="comments-eyebrow">From your coach</span>
+        <div id="comments-list" class="rz-comments__list"></div>
+        <div id="comments-form" class="rz-field rz-comments__form" hidden>
+          <textarea id="comment-text" rows="3" maxlength="500" data-t-ph="commentPlaceholder" placeholder="Comment for the skater…" aria-labelledby="comments-eyebrow" class="rz-input"></textarea>
+          <button class="btn btn--primary" id="btn-comment-send" data-t="send">Send</button>
+        </div>
+      </div>
+
+      <div class="rz-actions">
+        <button class="btn btn--primary btn--huge" id="btn-ans-again"><span data-t="ansAgain">Analyse a new video</span></button>
+        <div class="rz-actions__row">
+          <button class="btn btn--outline" id="btn-ans-share"><span data-t="ansShare">Share</span></button>
+          <button class="btn btn--outline" id="btn-ans-revoke-share" hidden>Revoke link</button>
+          <button class="btn btn--outline" id="btn-ans-open-today"><span data-t="openToday">What to train</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ─────────── 4. PROGRESS (3.5 / 3.6) ─────────── -->
+  <section class="scr rz rz-prog" id="scr-progress" hidden>
+    <!-- the journal — the right column at ≥900 px; the rest — the left. -->
+    <div class="rz-col rz-col--a">
+    <!-- the hero "Your progress · Dynamics and journal · All
+         measurements are compared…" duplicated the screen header and took a third of the
+         first screen. The "Brief" toggle moved to the journal header. -->
+    <div class="rz-stats grid-2" hidden>
+      <div class="rz-stat">
+        <span class="rz-eyebrow" data-t="recordsEyebrow">PERSONAL BESTS</span>
+        <div class="rz-stat__v mono" id="progress-records">—</div>
+        <div class="rz-stat__s" id="progress-records-sub" data-t="s035">appear once analyses measure jump height</div>
+      </div>
+    </div>
+
+    <!-- the week's volume — journal counters only -->
+    <div class="card rz-pcard" id="progress-week" hidden></div>
+    <div class="card rz-pcard" id="progress-trend" hidden>
+      <span class="rz-eyebrow" data-t="trendsEyebrow">Weekly trends</span>
+      <div id="progress-trend-body" class="rz-pcard__body"></div>
+    </div>
+    <div class="card rz-pcard" id="progress-goals" hidden>
+      <span class="rz-eyebrow" data-t="goalsEyebrow">By goal · did the drills help</span>
+      <div id="progress-goals-body" class="rz-pcard__body"></div>
+    </div>
+
+    <div class="card rz-pcard rz-session-summary" id="session-summary" hidden>
+      <span class="rz-eyebrow" id="session-summary-eyebrow">Latest analysis summary</span>
+      <div id="session-summary-body" class="rz-session-summary__body"></div>
+      <button class="btn btn--primary" id="btn-session-next"></button>
+    </div>
+
+    <div class="card rz-pcard rz-goal" id="progress-goal" hidden>
+      <div class="rz-goal__head">
+        <span class="rz-eyebrow" data-t="goalEyebrow">Goal</span>
+        <button class="btn btn--outline btn--sm rz-goal__edit" id="btn-goal-edit" data-t="goalEditBtn">Change goal</button>
+      </div>
+      <div id="goal-body" class="rz-pcard__body"></div>
+      <div id="goal-form" class="rz-pcard__form" hidden></div>
+    </div>
+
+    <div class="card rz-pcard" id="progress-skills" hidden>
+      <span class="rz-eyebrow" data-t="skillsEyebrow">Skill profile</span>
+      <div id="skills-table" class="rz-pcard__body"></div>
+    </div>
+
+    <div class="card rz-pcard" id="progress-fitness" hidden>
+      <span class="rz-eyebrow" data-t="fitnessEyebrow">Physical tests</span>
+      <div id="fitness-groups-summary" class="rz-pcard__body rz-chips"></div>
+      <p id="fitness-load-status" class="rz-note" role="alert" hidden></p>
+      <button id="btn-fitness-load-retry" class="btn btn--outline btn--sm" hidden>Retry loading</button>
+      <details id="fitness-tests-details" class="rz-details">
+        <summary data-t="fitnessDetails">All test details</summary>
+        <div id="fitness-tests-list"></div>
+      </details>
+      <div class="rz-stack">
+        <button class="btn btn--primary" id="btn-fitness-start-run" data-t="fitnessRunBtn">Take the tests one by one</button>
+        <button class="btn btn--outline" id="btn-fitness-toggle-edit" data-t="fitnessManualBtn">Enter results manually</button>
+      </div>
+      <p id="fitness-draft-notice" class="rz-note" role="status" aria-live="polite" hidden></p>
+      <button class="btn btn--outline btn--sm" id="btn-fitness-discard-drafts" hidden>Discard unsaved results</button>
+      <div id="fitness-edit-form" class="rz-pcard__form" hidden></div>
+    </div>
+
+    <div class="card rz-pcard" id="fitness-runner" hidden>
+      <div class="rz-log__head rz-log__head--bare">
+        <span class="rz-eyebrow" id="fitness-runner-step" data-t="s036">TEST 1 OF 7</span>
+        <button class="btn btn--outline btn--sm" id="btn-fitness-runner-skip" data-t="w008">Skip</button>
+      </div>
+      <h3 class="rz-runner__t" id="fitness-runner-name"></h3>
+      <ol id="fitness-runner-how" class="rz-runner__how"></ol>
+      <div id="fitness-runner-widget" class="rz-pcard__body"></div>
+      <p id="fitness-runner-status" class="rz-note" role="status" aria-live="polite" hidden></p>
+      <button class="btn btn--primary" id="btn-fitness-runner-save" data-t="s038">Save · next</button>
+    </div>
+
+    </div>
+    <div class="rz-col rz-col--b">
+    <div class="card rz-log">
+      <div class="rz-log__head">
+        <h3 class="rz-log__t" data-t="logTitle">Attempt log</h3>
+        <!-- "All jumps" looked like a filter it was not; here it is the count -->
+        <span class="rz-log__filter" id="log-count"></span>
+        <button class="rz-tool rz-tool--more rz-log__quick" id="btn-quick-mode"><span data-t="quickModeOn">Quick</span></button>
+      </div>
+      <div class="rz-log__chips" id="log-filter" hidden></div>
+      <div id="log-rows-container"></div>
+    </div>
+
+    </div>
+  </section>
+
+
+  <!-- ─────────── 5. LEARN (3.7) ─────────── -->
+  <section class="scr rz rz-learn" id="scr-learn" hidden>
+    <!-- the hero "Knowledge base · Every term explained" duplicated
+         the screen header; search became the first element. -->
+    <div class="rz-learn__search">
+      <input type="text" class="rz-input rz-input--search search-input" id="learn-search" data-t-ph="learnSearchPh" placeholder="Ask the knowledge base…">
+    </div>
+
+    <!-- the caption "From your last answer" stood above one and the same
+         term (undercurve) regardless of whether there was
+         an answer at all. Now the term is chosen from the last analysis
+         (coach.js:renderLearnFeatured), and without an analysis the caption is neutral. -->
+    <div class="card rz-pcard rz-feat" id="card-learn-featured" role="button" tabindex="0">
+      <span class="rz-eyebrow" id="learn-feat-eyebrow" data-t="learnFeaturedNeutral">ISU rules</span>
+      <h3 class="rz-feat__t" id="learn-feat-title" data-t="learnFeatTitle">What under-rotation means (q and &lt;)</h3>
+      <p class="rz-note rz-note--flush" id="learn-feat-desc" data-t="learnFeatDesc">The ISU rules on under-rotation, the 90° (q) boundary and the drills that fix it.</p>
+      <button class="btn btn--outline" data-t="learnFeatBtn">Read the explanation</button>
+    </div>
+
+    <div class="card rz-pcard">
+      <span class="rz-eyebrow" data-t="isuMatrixEyebrow">ISU jump classification</span>
+      <div class="rz-matrix">
+        <div class="rz-matrix__cell"><strong class="rz-matrix__k rz-matrix__k--toe" data-t="toeJumps">Toe jumps:</strong><span data-t="toeJumpsList">Toe Loop, Flip, Lutz</span></div>
+        <div class="rz-matrix__cell"><strong class="rz-matrix__k rz-matrix__k--edge" data-t="edgeJumps">Edge jumps:</strong><span data-t="edgeJumpsList">Salchow, Loop, Axel</span></div>
+      </div>
+    </div>
+
+    <div class="card rz-log">
+      <div class="rz-log__head"><h3 class="rz-log__t" data-t="learnTermsTitle">Terms</h3></div>
+      <div class="rz-terms" id="learn-terms-list"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── 6. DRILL CARD (3.4) ─────────── -->
+  <section class="scr rz rz-drill" id="scr-drill" hidden>
+    <!-- the second "back" arrow under the header duplicated the arrow in
+         the header itself (both led to the same place). The header arrow remains. -->
+    <header class="rz-drill__head">
+      <div class="rz-drill__heading">
+        <div class="rz-eyebrow" id="drill-category-eyebrow" data-t="s040">DRILL · LEVEL 2 · OFF-ICE</div>
+        <h2 class="rz-hero__t rz-drill__title" id="drill-title" data-t="s041">Closed-axis hold</h2>
+      </div>
+    </header>
+
+    <!-- Live Drill Video Preview Streaming from Coach System -->
+    <div class="rz-video rz-drill__video">
+      <div class="rz-video__stage">
+        <video id="drill-video-player" playsinline loop controls></video>
+      </div>
+    </div>
+
+    <!-- Dosage metrics. Hidden entirely when the dosage is NOT structured
+         ("5 from each leg", "in sets of 6-8") — three empty boxes with
+         dashes dominated the card, while the real instruction was
+         small text below (caught by a live walkthrough). -->
+    <div class="rz-metrics rz-drill__metrics" id="drill-dosage-grid">
+      <div class="rz-metric">
+        <div class="rz-eyebrow" data-t="s042">SETS</div>
+        <div class="rz-metric__v" id="drill-sets-val">3</div>
+      </div>
+      <div class="rz-metric">
+        <div class="rz-eyebrow" data-t="s043">REPS</div>
+        <div class="rz-metric__v" id="drill-reps-val">6</div>
+      </div>
+      <div class="rz-metric">
+        <div class="rz-eyebrow" data-t="s044">REST</div>
+        <div class="rz-metric__v" id="drill-rest-val">90<span class="rz-metric__u" data-t="unitSec">  s</span></div>
+      </div>
+    </div>
+
+    <!-- One Cue Box -->
+    <div class="card rz-pcard rz-drill__cue" id="drill-one-cue">
+      <div class="rz-eyebrow rz-eyebrow--action" data-t="s045">ONE CUE</div>
+      <p class="rz-drill__cue-text" id="drill-cue-val" data-t="s046">
+        “Imagine flying through a narrow tube — don’t touch its walls until you land.”
+      </p>
+    </div>
+
+    <!-- Dosage Explanation -->
+    <div class="card rz-pcard">
+      <h3 class="rz-card__t" data-t="s047">Dosage and technique</h3>
+      <p class="rz-note rz-note--flush rz-drill__dose" id="drill-dosage-desc" data-t="s048">
+        Quality over speed. If the axis opens early, stop and rest.
+      </p>
+    </div>
+
+    <!-- Step-by-Step Instructions -->
+    <div class="card rz-log">
+      <div class="rz-log__head">
+        <h3 class="rz-log__t" data-t="t002">Step by step</h3>
+      </div>
+      <div id="drill-steps-list">
+        <!-- Steps rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Common Mistakes -->
+    <div class="card rz-log" id="card-drill-mistakes">
+      <div class="rz-log__head">
+        <div class="rz-eyebrow rz-drill__mistakes-title" data-t="t003">COMMON MISTAKES</div>
+      </div>
+      <div id="drill-mistakes-list">
+        <!-- Mistakes rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Progression Gate -->
+    <div class="card rz-pcard rz-drill__gate">
+      <div class="rz-eyebrow" data-t="t004">PROGRESSION GATE</div>
+      <p class="rz-drill__gate-text" id="drill-gate-val" data-t="t005">
+        3 sets of 6 clean reps without breaking the axis.
+      </p>
+    </div>
+
+    <div class="rz-drill__source" id="drill-source-val">
+      <span data-t="drillSrc">Source: JumpSight knowledge base · Biomechanics, King et al. (1994)</span>
+    </div>
+
+    <!-- Start Button -->
+    <div class="rz-drill__actions">
+      <button class="btn btn--primary btn--huge" id="btn-drill-start-set">
+        <span id="player-start-label" data-t="u008">Start the set</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ─────────── 7. SESSION PLAYER (3.4 MODE 2 METRICS) ─────────── -->
+  <section class="player-full rz rz-player" id="scr-player" hidden>
+    <div class="player-header rz-player__head">
+      <button class="bar__pill rz-player__pause" id="btn-player-pause" data-t="w000">Minimise</button>
+      <span class="player-block-name" id="player-block-title">Main block</span>
+      <span class="mono rz-player__set-label" id="player-set-eyebrow">Set 1 of 3</span>
+    </div>
+
+    <!-- Active Set View -->
+    <div class="rz-player__view rz-player__set" id="player-set-view" style="display:none">
+      <!-- 2-Metre Live Looping Video -->
+      <div class="vid-stage rz-video__stage player-video-box rz-player__video">
+        <!-- src is set ONLY by coach.js via /api/drill_media (an honest source
+             with a label). A hardcoded src here with the drill id
+             fired a 404 on EVERY page load and, if the file existed,
+             would show someone else's video before substitution. -->
+        <video id="player-video-loop" playsinline loop muted autoplay></video>
+      </div>
+
+      <!-- One Cue Overlay (2-Metre Visibility) -->
+      <!-- Intentionally empty: the text always comes from the drill (coach.js
+           hides the block when there is no hint). A hardcoded sample here
+           would show on a logic failure. -->
+      <div class="player-cue-large" id="player-cue-display" hidden></div>
+
+      <!-- Step-by-step instructions -->
+      <details class="rz-details rz-player__details" open>
+        <summary data-t="w001">How to do it</summary>
+        <div class="rz-player__list" id="player-steps-list"></div>
+      </details>
+      <details class="rz-details rz-player__details rz-player__details--mistakes">
+        <summary data-t="w002">Common mistakes</summary>
+        <div class="rz-player__list" id="player-mistakes-list"></div>
+      </details>
+
+      <!-- Hold Timer Ring -->
+      <div class="hold-ring-wrap" id="player-hold-box">
+        <svg width="100" height="100" viewBox="0 0 100 100" class="hold-ring-svg">
+          <circle cx="50" cy="50" r="45" class="hold-ring-bg"></circle>
+          <circle cx="50" cy="50" r="45" class="hold-ring-fg" id="player-hold-ring"></circle>
+        </svg>
+        <span class="mono rz-player__hold-text" id="player-hold-txt">3.0<span data-t="unitSec">  s</span></span>
+      </div>
+
+      <!-- Rep Counter & Action Controls -->
+      <div class="rz-player__controls">
+        <!-- the block BY TIME ("3-5 min" warm-up, "45 s" hold)
+             previously showed "0 / 1 · Reps done" — a rep counter
+             for a drill with no reps. Now for such blocks —
+             a timer (coach.js:parseDosage returns seconds). -->
+        <div class="rz-player__timed" id="player-timed" hidden>
+          <div class="mono rz-player__clock rz-player__clock--timed" id="player-timed-clock">3:00</div>
+          <div class="rz-note rz-player__timed-note" id="player-timed-note"></div>
+        </div>
+        <div class="mono rz-player__counter" id="player-rep-counter">0 / 6</div>
+        <button class="btn btn--primary player-btn-rep" id="btn-rep-done">
+          <span data-t="w003">Rep done</span>
+        </button>
+        <button class="btn btn--primary player-btn-rep" id="btn-timed-start" hidden>
+          <span id="btn-timed-start-label">Start</span>
+        </button>
+        <div class="rz-actions__row rz-player__secondary-actions">
+          <button class="btn btn--well" id="btn-set-done" data-t="w004">Set done</button>
+          <button class="btn btn--outline rz-player__stop" id="btn-too-hard"><span data-t="w005">End session</span><br><span class="rz-player__stop-note" data-t="t019">it got too hard</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rest Timer View with Controls -->
+    <div class="rz-player__view rz-player__rest" id="player-rest-view" hidden style="display:none">
+      <div class="rz-eyebrow" data-t="t020">REST BETWEEN SETS</div>
+      <div class="mono rz-player__clock" id="player-rest-clock">1:30</div>
+      <p class="rz-player__rest-note" data-t="w006">The next set starts automatically when the countdown ends.</p>
+      
+      <div class="rz-actions__row rz-player__rest-actions">
+        <button class="btn btn--outline" id="btn-rest-plus30" data-t="w007">+30 s</button>
+        <button class="btn btn--well" id="btn-skip-rest" data-t="w008">Skip</button>
+      </div>
+    </div>
+
+    <!-- Post-Session RPE Feedback -->
+    <div class="rz-player__view rz-player__rpe" id="player-rpe-view" hidden style="display:none">
+      <header class="rz-hero rz-player__rpe-head">
+        <h2 class="rz-hero__t" data-t="w009">How did the session feel?</h2>
+        <p class="rz-hero__s" data-t="w010">The session difficulty and drill results help shape your next plan. If you do not choose, the difficulty remains unknown.</p>
+      </header>
+
+      <div class="rz-player__rpe-options">
+        <button class="onboard-picker-btn" data-post-rpe="easy"><span data-t="w011">Easy: I could do more</span></button>
+        <button class="onboard-picker-btn" data-post-rpe="right"><span data-t="w012">Right: hard but clean</span></button>
+        <button class="onboard-picker-btn" data-post-rpe="much"><span data-t="w013">Too much: technique broke down</span></button>
+      </div>
+
+      <div id="player-outcomes" class="rz-player__outcomes" hidden></div>
+      <p id="player-save-error" class="rz-alert rz-alert--bad" role="alert" hidden></p>
+
+      <div class="rz-player__save">
+        <button class="btn btn--primary btn--huge" id="btn-save-session-feedback" data-t="w014">Save · back to Today</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 8. ACCOUNT & SETTINGS ─────────── -->
+  <section class="scr rz rz-acc" id="scr-account" hidden>
+    <div class="card rz-pcard rz-me" id="card-account">
+      <div class="rz-me__head">
+        <div class="rz-me__avatar" id="acc-avatar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="rz-me__txt">
+          <div class="rz-me__name" id="acc-title">Guest</div>
+          <div class="rz-me__sub" id="acc-subtitle">Not signed in</div>
+        </div>
+        <button class="bar__b rz-me__edit" id="btn-acc-edit-name" data-t-aria="accountEditName" aria-label="Edit name" aria-expanded="false" aria-controls="acc-name-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+      </div>
+
+      <!-- Summaries from one's own journal — measured values only. With no
+           analysis the block is hidden (no zeros and dashes). -->
+      <div class="rz-me__stats" id="acc-stats" hidden></div>
+      <div class="rz-signin" id="g-signin-wrap">
+        <button class="btn btn--primary btn--huge" id="btn-open-auth" data-t="authOpen">Sign in or create account</button>
+        <p class="rz-note rz-note--flush" id="auth-why-note" data-t="authWhy">With an account your journal and sessions are available from any phone and to your coach.</p>
+      </div>
+      <button class="quiet-link rz-quiet-btn rz-me__out" id="btn-acc-logout" hidden data-t="accountSignOut">Sign out</button>
+
+      <div class="rz-fieldset" id="acc-name-row">
+        <label class="rz-label" for="acc-name" data-t="accountName">Name</label>
+        <div class="rz-field row-field">
+          <input id="acc-name" class="rz-input" maxlength="40" data-t-ph="accountNamePh" aria-label="Your name" data-t-aria="accountNamePh" placeholder="Your name">
+          <button class="btn btn--outline" id="btn-acc-name-save" data-t="accountSave">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- five separate cards (coach / team / about me /
+         code / settings) read as five equally important decisions —
+         none dominated, and there was nothing to catch the eye. One
+         grouped list of rows (iOS Settings / Stripe account) replaces
+         this: expands on touch, the same ids, the same JS. -->
+    <div class="card rz-log" id="acc-group">
+      <details class="rz-arow" id="acc-skater-box">
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t" data-t="accountMyCoach">My coach</span>
+            <span class="rz-arow__s" id="acc-coach-line">No coach yet.</span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div class="rz-field row-field">
+            <input id="acc-coach-code" class="rz-input rz-input--code" maxlength="6" data-t-ph="accountCoachCode" aria-label="Coach code" data-t-aria="accountCoachCode" placeholder="Coach code" autocapitalize="characters">
+            <button class="btn btn--primary" id="btn-acc-join" data-t="accountAdd">Add</button>
+          </div>
+          <div id="acc-pending-coach" class="rz-note" hidden></div>
+          <button class="quiet-link rz-quiet-btn" id="btn-acc-leave" hidden>Leave coach</button>
+        </div>
+      </details>
+
+      <details class="rz-arow" id="acc-coach-box" hidden>
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t" data-t="accountMyTeam">My team</span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div class="rz-field row-field">
+            <input id="acc-student-code" class="rz-input rz-input--code" maxlength="6" data-t-ph="accountStudentCode" aria-label="Skater code" data-t-aria="accountStudentCode" placeholder="Skater code" autocapitalize="characters">
+            <button class="btn btn--primary" id="btn-acc-add-student" data-t="accountAdd">Add</button>
+          </div>
+          <div id="acc-team" class="rz-team"></div>
+        </div>
+      </details>
+
+      <!-- /coach/survey (7 questions: experience, stable jumps,
+           frequency, coach, age, balance, pain) existed on the server and set
+           the level and the safe gates of the session, but no screen showed it —
+           the plan was always built on the "most cautious settings", and the
+           note referred to a "History" tab that does not exist. -->
+      <details class="rz-arow" id="acc-survey-box">
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t" data-t="surveyEyebrow">About you</span>
+            <span class="rz-arow__s" id="acc-survey-status"></span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div id="acc-survey-form" class="rz-survey"></div>
+        </div>
+      </details>
+
+      <details class="rz-arow" id="acc-code-box">
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t" data-t="accountCode">Code for your coach</span>
+            <span class="rz-arow__s" data-t="accountCodeSub">So your coach can see your analyses</span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div class="rz-code__row">
+            <div class="rz-code__v mono" id="acc-code">——————</div>
+            <button class="btn btn--outline btn--sm" id="btn-acc-copy" data-t="accountCopy">Copy</button>
+          </div>
+          <!-- the coach invitation in one tap (code + link) -->
+          <button class="btn btn--primary" id="btn-acc-invite" data-t="accountInvite">Send to my coach</button>
+          <p class="rz-note" data-t="accountCodeHelp">Give this code to your coach: they will see your analyses and can leave comments.</p>
+        </div>
+      </details>
+
+      <!-- the transfer token sat inside
+           "Code for your coach" and was confused with the coach code — a separate line -->
+      <details class="rz-arow" id="acc-move-box">
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t">Move to another phone</span>
+            <span class="rz-arow__s">One-time token, no account needed</span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div id="acc-transfer-box" class="rz-field" hidden>
+            <button class="btn btn--outline btn--sm" id="btn-acc-transfer">Create transfer token</button>
+            <input id="acc-transfer-token" class="rz-input mono" readonly hidden aria-label="Transfer token">
+            <p class="rz-note">The token is valid for 10 minutes and works once.</p>
+          </div>
+          <details class="rz-details">
+            <summary>Move the profile to this phone</summary>
+            <div class="rz-field row-field">
+            <input id="acc-claim-code" class="rz-input" maxlength="128" aria-label="Transfer token" placeholder="Transfer token" autocapitalize="off">
+              <button class="btn btn--outline" id="btn-acc-claim" data-t="accountLogin">Sign in</button>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <!-- the role is changed once — it belongs in the list, not on the first profile screen -->
+      <details class="rz-arow" id="acc-role-box">
+        <summary class="rz-arow__sum">
+          <span class="rz-arow__ic" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-1a6 6 0 0 1 12 0v1"/></svg></span>
+          <span class="rz-arow__txt">
+            <span class="rz-arow__t" data-t="accountRole">Role</span>
+            <span class="rz-arow__s" id="acc-role-line"></span>
+          </span>
+        </summary>
+        <div class="rz-arow__body">
+          <div class="rz-segbtns">
+            <button class="rz-segbtn" id="btn-acc-role-skater" data-t="accountSkater">I am a skater</button>
+            <button class="rz-segbtn" id="btn-acc-role-coach" data-t="accountCoach">I am a coach</button>
+          </div>
+        </div>
+      </details>
+
+      <div class="rz-arow__div" role="separator" aria-hidden="true" data-t="accountSettingsTitle">Application settings</div>
+
+      <div class="rz-setting setting-row">
+        <span data-t="t008">Appearance</span>
+        <div class="rz-segbtns rz-segbtns--auto">
+          <button class="theme-b rz-segbtn is-on" data-theme="auto" data-t="t009">Auto</button>
+          <button class="theme-b rz-segbtn" data-theme="light" data-t="t010">Light</button>
+          <button class="theme-b rz-segbtn" data-theme="dark" data-t="t011">Dark</button>
+        </div>
+      </div>
+      <!-- English only — the language setting was removed -->
+      <!-- the row "Enabled (Web Audio)" was a caption without
+           a toggle — a technical API name instead of a setting. Now it is
+           a real switch: it mutes both the timer signals and the button clicks. -->
+      <!-- "Confirm my assessment first" is a setting, not an action. It lived as
+           a quiet line under the answer buttons on every analysis. -->
+      <div class="rz-setting setting-row">
+        <span data-t="guessSetting">Guess the jump before the result</span>
+        <div class="rz-segbtns rz-segbtns--auto">
+          <button class="theme-b rz-segbtn" id="btn-guess-on" data-t="soundOn">On</button>
+          <button class="theme-b rz-segbtn is-on" id="btn-guess-off" data-t="soundOff">Off</button>
+        </div>
+      </div>
+      <div class="rz-setting setting-row rz-setting--last">
+        <span data-t="u003">Sounds</span>
+        <div class="rz-segbtns rz-segbtns--auto">
+          <button class="theme-b rz-segbtn is-on" id="btn-sound-on" data-t="soundOn">On</button>
+          <button class="theme-b rz-segbtn" id="btn-sound-off" data-t="soundOff">Off</button>
+        </div>
+      </div>
+      <!-- privacy policy — on a separate page -->
+      <a class="quiet-link rz-privacy-link" href="/privacy" target="_blank" rel="noopener">Privacy: what is stored and how to delete it</a>
+    </div>
+
+  </section>
+
+  <!-- ─────────── 8c. TEAM — coach screen ─────────── -->
+  <section class="scr rz rz-team" id="scr-team" hidden>
+    <div class="rz-hero rz-hero--row">
+      <div>
+        <h2 class="rz-hero__t" data-t="teamTitle">Coach workspace</h2>
+        <p class="rz-hero__s" data-t="teamSub">Student analyses and the next session focus</p>
+      </div>
+    </div>
+    <div id="team-summary" class="rz-team-summary" hidden></div>
+    <div id="team-tools" class="rz-team-tools" hidden>
+      <label class="rz-label" for="team-search" data-t="teamSearch">Find a student</label>
+      <input id="team-search" class="rz-input" type="search" autocomplete="off" data-t-ph="teamSearchPlaceholder" placeholder="Student name or code">
+      <div class="rz-team-filters" role="group" data-t-aria="teamFilters" aria-label="Student filters">
+        <button class="rz-segbtn is-on" data-team-filter="all" aria-pressed="true" data-t="teamAll">All</button>
+        <button class="rz-segbtn" data-team-filter="new" aria-pressed="false" data-t="teamNew">New analyses</button>
+        <button class="rz-segbtn" data-team-filter="focus" aria-pressed="false" data-t="teamFocus">With focus</button>
+      </div>
+      <p class="rz-note" id="team-result-count" role="status" aria-live="polite"></p>
+    </div>
+    <div id="team-state" class="rz-team-state" role="status" aria-live="polite" hidden></div>
+    <p id="team-pending" class="rz-note" role="status" hidden></p>
+    <!-- the first screen a new coach sees — and it is here that
+         it must show WHAT THIS GIVES, not just "no students". Three rows —
+         three things the coach gets from each student; below them — their OWN
+         code (so as not to go to the profile separately) and the same add field as
+         there (one form, not two copies). -->
+    <div class="card rz-pcard" id="team-empty" hidden>
+      <p class="rz-note rz-note--flush" data-t="teamEmptyLede">What a team gives you:</p>
+      <ul class="rz-team-explain">
+        <li data-t="teamEmptyP1">a student's jump analyses and how many days since they last filmed</li>
+        <li data-t="teamEmptyP2">which error persists: not a one-off miss, but something that has not moved in several attempts</li>
+        <li data-t="teamEmptyP3">you can set a 14-day session focus, and the student sees it came from you</li>
+      </ul>
+    </div>
+    <details id="team-invite" class="card rz-pcard rz-team-invite">
+      <summary data-t="teamInvite">Invite a student</summary>
+      <div class="rz-code__row">
+        <div class="rz-code__v mono" id="team-empty-code">——————</div>
+        <button class="btn btn--outline btn--sm" id="btn-team-empty-copy" data-t="accountCopy">Copy</button>
+      </div>
+      <p class="rz-note" data-t="teamEmptyCodeHelp">Give a student this code to enter under “Profile → My coach”, or enter their code below.</p>
+      <div class="rz-field row-field">
+        <input id="team-empty-student-code" class="rz-input rz-input--code" maxlength="6" data-t-ph="accountStudentCode" aria-label="Skater code" data-t-aria="accountStudentCode" placeholder="Skater code" autocapitalize="characters">
+        <button class="btn btn--primary" id="btn-team-empty-add" data-t="accountAdd">Add</button>
+      </div>
+    </details>
+    <div class="rz-team__list" id="team-list"></div>
+  </section>
+
+  <!-- ─────────── 8b. AUTH ─────────── -->
+  <section class="scr rz rz-auth" id="scr-auth" hidden>
+    <div class="rz-auth__wrap">
+      <div class="rz-auth__brand">
+        <div class="rz-auth__mark" aria-hidden="true"><img src="/static/icon.svg" alt="" width="44" height="44"></div>
+        <h1 class="rz-auth__t" id="auth-title" data-t="authTitleIn">Sign in</h1>
+        <p class="rz-auth__p" id="auth-sub" data-t="authSubIn">Your attempts and sessions follow you to any phone.</p>
+      </div>
+
+      <div class="rz-auth__providers">
+        <div id="g-signin"></div>
+        <button class="btn btn--outline btn--huge auth-apple" id="btn-apple-signin" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.7 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.8zM14.3 5.4c.7-.8 1.1-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg>
+          <span data-t="accountApple">Continue with Apple</span>
+        </button>
+        <p class="rz-note rz-note--flush" id="g-signin-note" hidden></p>
+      </div>
+
+      <div class="rz-auth__or"><span data-t="authOr">or with email</span></div>
+
+      <form class="rz-auth__form" id="auth-form" novalidate>
+        <label class="rz-auth__field" id="auth-name-wrap" hidden>
+          <span data-t="accountName">Name</span>
+          <input id="auth-name" class="rz-input" maxlength="40" autocomplete="name" data-t-ph="accountNamePh" placeholder="Your name">
+        </label>
+        <label class="rz-auth__field">
+          <span>Email</span>
+          <input id="auth-email" class="rz-input" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" required>
+        </label>
+        <label class="rz-auth__field">
+          <span data-t="authPassword">Password</span>
+          <div class="rz-auth__pw">
+            <input id="auth-password" class="rz-input" type="password" minlength="8" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" class="rz-auth__eye" id="auth-eye" aria-label="Show password" data-t-aria="authShowPw">👁</button>
+          </div>
+          <span class="rz-auth__hint" id="auth-pw-hint" hidden data-t="authPwHint">At least 8 characters.</span>
+        </label>
+        <p class="rz-auth__err" id="auth-err" role="alert" hidden></p>
+        <button class="btn btn--primary btn--huge" type="submit" id="auth-submit" data-t="authTitleIn">Sign in</button>
+      </form>
+
+      <div class="rz-auth__switch">
+        <span id="auth-switch-q" data-t="authNoAcc">No account yet?</span>
+        <button type="button" class="quiet-link" id="auth-switch" data-t="authCreate">Create one</button>
+      </div>
+      <button type="button" class="quiet-link rz-auth__guest" id="auth-guest" data-t="authGuest">Continue without an account</button>
+      <p class="rz-note rz-auth__privacy"><a href="/privacy" target="_blank" rel="noopener">Privacy: what is stored and how to delete it</a></p>
+    </div>
+  </section>
+
+  <!-- ─────────── 9. ONBOARDING (START) ─────────── -->
+  <section class="scr rz rz-onboard" id="scr-onboard" hidden>
+    <!-- STEP 1: WHAT THE SYSTEM DOES. Previously the first screen
+         immediately asked "choose a jump" — a wall of 12 codes and no
+         demonstration of what the app can do. The design reference (design/3.9, screen 1
+         "8 seconds to the point") requires the opposite: first SHOW
+         the answer, then ask. All numbers here are a real measurement
+         of the control video (the control clip result JSON),
+         not a mockup: invariant §2.1 applies to the demonstration too. -->
+    <div class="rz-onboard__step" id="onboard-step-intro">
+      <header class="rz-hero rz-onboard__hero">
+        <div class="rz-eyebrow" data-t="obIntroEyebrow">JumpSight</div>
+        <h2 class="rz-hero__t" data-t="obIntroTitle">Which jump, how many turns?</h2>
+        <p class="rz-hero__s" data-t="obIntroDesc">One phone video shows you the rotations, the jump name, and what the camera could not see.</p>
+      </header>
+
+      <div class="card rz-pcard rz-onboard__example">
+        <div class="rz-eyebrow" data-t="obExampleEyebrow">Example answer · not your data</div>
+        <div class="rz-onboard__result">
+          <div class="hero-num rz-onboard__rev">2</div>
+          <div class="rz-note rz-note--flush" data-t="obExampleRevUnit">rotations (judges' count) · count estimated · name likely</div>
+        </div>
+        <div class="rz-onboard__verdict">
+          <div class="rz-onboard__verdict-title" data-t="obExampleVerdict">Double Lutz · no errors found</div>
+          <div class="rz-note rz-note--flush" data-t="obExampleChecks">Checked: fall, step-out, touch-down, hand-down, axis. Two-foot landing and landing knee cannot be checked from one camera.</div>
+        </div>
+        <div class="rz-metrics rz-onboard__metrics">
+          <div class="rz-metric">
+            <div class="rz-eyebrow" data-t="obExampleAirLbl">IN THE AIR</div>
+            <div class="rz-metric__v">0.54 <span class="rz-metric__u"><span data-t="s025">s</span> ±0.13</span></div>
+          </div>
+          <div class="rz-metric">
+            <div class="rz-eyebrow" data-t="obExampleHeightLbl">HEIGHT</div>
+            <div class="rz-metric__v">35 <span class="rz-metric__u"><span data-t="s026">cm</span> ±17</span></div>
+          </div>
+          <!-- the example = the current measurement of the same video (job
+               0e86c6f2614a). The decimal rotations in flight are now kept by the engine
+               (the band is wider than half a rotation) — so the speed tile, as on a
+               real answer; "two legs" from one angle is not checked. -->
+          <div class="rz-metric">
+            <div class="rz-eyebrow" data-t="obExampleFlightLbl">ROTATION SPEED</div>
+            <div class="rz-metric__v">3.0 <span class="rz-metric__u">±0.2 rotations/s</span></div>
+          </div>
+        </div>
+        <div class="rz-onboard__honest">
+          <div class="rz-onboard__honest-title" data-t="obHonestTitle">What this video did NOT show</div>
+          <div class="rz-note rz-note--flush" data-t="obHonestBody">One camera cannot see the Lutz/Flip edge, so the app says so instead of guessing.</div>
+        </div>
+      </div>
+
+      <p class="rz-note rz-onboard__foot" data-t="obExampleFoot">A real measurement of a real phone video. Your video gets its own numbers, only the ones that could be measured.</p>
+
+      <div class="rz-onboard__actions">
+        <button class="btn btn--primary btn--huge" id="btn-onboard-next" data-t="obIntroCta">Next: 1 question</button>
+      </div>
+    </div>
+
+    <div class="rz-onboard__step rz-onboard__pick" id="onboard-step-pick" hidden>
+    <header class="rz-hero rz-onboard__hero">
+      <div class="rz-eyebrow" data-t="onboardEyebrow">Working jump</div>
+      <h2 class="rz-hero__t" data-t="onboardTitle">Which jump are you working on?</h2>
+      <p class="rz-hero__s" data-t="onboardDesc">It sets the session focus and the order of names on the answer screen. You can change it later.</p>
+    </header>
+
+    <div class="onboard-picker-grid rz-onboard__picker">
+      <button class="onboard-picker-btn" data-jump="1A"><span class="mono rz-onboard__jump">1A</span> <span class="onboard-picker-name">Single Axel</span></button>
+      <button class="onboard-picker-btn" data-jump="2A"><span class="mono rz-onboard__jump">2A</span> <span class="onboard-picker-name">Double Axel</span></button>
+      <!-- Doubles (except Axel) were skipped: a user with a double lutz
+           could not choose her working jump. -->
+      <button class="onboard-picker-btn" data-jump="2S"><span class="mono rz-onboard__jump">2S</span> <span class="onboard-picker-name">Double Salchow</span></button>
+      <button class="onboard-picker-btn" data-jump="2T"><span class="mono rz-onboard__jump">2T</span> <span class="onboard-picker-name">Double Toe loop</span></button>
+      <button class="onboard-picker-btn" data-jump="2Lo"><span class="mono rz-onboard__jump">2Lo</span> <span class="onboard-picker-name">Double Loop</span></button>
+      <button class="onboard-picker-btn" data-jump="2F"><span class="mono rz-onboard__jump">2F</span> <span class="onboard-picker-name">Double Flip</span></button>
+      <button class="onboard-picker-btn" data-jump="2Lz"><span class="mono rz-onboard__jump">2Lz</span> <span class="onboard-picker-name">Double Lutz</span></button>
+      <!-- "3T" was marked is-on IN ADVANCE, meaning the app
+           answered for the user that they jump triple jumps, and a person who
+           simply pressed "Save" became the owner of someone else's level.
+           The research (research/08 simplify, PMID 34843301) says the skill level
+           does NOT moderate the delivery at all — an invented level improves nothing,
+           but silently skews the drill selection. The choice stays with the person;
+           no option is pre-selected. -->
+      <button class="onboard-picker-btn" data-jump="3T"><span class="mono rz-onboard__jump">3T</span> <span class="onboard-picker-name">Triple Toe loop</span></button>
+      <button class="onboard-picker-btn" data-jump="3S"><span class="mono rz-onboard__jump">3S</span> <span class="onboard-picker-name">Triple Salchow</span></button>
+      <button class="onboard-picker-btn" data-jump="3Lo"><span class="mono rz-onboard__jump">3Lo</span> <span class="onboard-picker-name">Triple Loop</span></button>
+      <button class="onboard-picker-btn" data-jump="3F"><span class="mono rz-onboard__jump">3F</span> <span class="onboard-picker-name">Triple Flip</span></button>
+      <button class="onboard-picker-btn" data-jump="3Lz"><span class="mono rz-onboard__jump">3Lz</span> <span class="onboard-picker-name">Triple Lutz</span></button>
+    </div>
+
+    <!-- in a 430x900 window 9 of 12 options were visible, and both
+         buttons lay BELOW the fold — the person saw the list and did not see
+         what to do with it. The buttons are pinned to the bottom of the window (sticky) and always
+         in frame; the list scrolls under them. -->
+    <div class="onboard-actions rz-onboard__actions rz-onboard__actions--sticky">
+      <button class="btn btn--primary btn--huge" id="btn-onboard-finish">
+        <span data-t="onboardContinue">Save and continue</span>
+      </button>
+      <button class="btn btn--outline" id="btn-onboard-skip" data-t="onboardSkip">Skip, choose later</button>
+    </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 10. TERM DEFINITION BOTTOM SHEET ─────────── -->
+  <div class="rz-sheet rz-sheet--bottom" id="sheet-term" role="dialog" aria-modal="true" aria-labelledby="sheet-term-title" hidden style="display:none">
+    <div class="card rz-sheet__panel">
+      <div class="rz-sheet__head">
+        <div class="rz-eyebrow" id="sheet-term-eyebrow" data-t="w015">ISU TERM</div>
+        <button class="bar__pill rz-sheet__close" id="btn-close-term-sheet" aria-label="Close" data-t-aria="close">✕</button>
+      </div>
+      <h2 class="rz-sheet__title" id="sheet-term-title">Under-rotation</h2>
+      <div class="rz-sheet__well" id="sheet-term-rule">
+        How the ISU technical panel marks rotation: <strong>“q”</strong> — landed about a quarter short (≈90°), full base value, GOE reduced. <strong>“&lt;”</strong> — short by more than 90° and less than 180°, reduced base value. <strong>“&lt;&lt;”</strong> — 180° or more, scored as the jump with one revolution less.
+      </div>
+      <p class="rz-sheet__desc" id="sheet-term-desc">
+        Most common causes: a loose or late air position, or too little height and air time (causes base, strong evidence).
+      </p>
+      <!-- "Open my session" led simply to "Training" — not to the
+           drill for exactly this term; one action relating to the term remains. -->
+      <div class="rz-sheet__actions">
+        <button class="btn btn--outline" id="btn-term-ask-coach">
+          <span data-t="w017">Ask the coach about this term</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── 10a. SHARE: story card + link ─────────── -->
+  <div class="rz-sheet rz-sheet--bottom" id="sheet-share" role="dialog" aria-modal="true" aria-labelledby="sheet-share-title" hidden style="display:none">
+    <div class="card rz-sheet__panel rz-share">
+      <div class="rz-sheet__head">
+        <h2 class="rz-sheet__title" id="sheet-share-title" data-t="shareTitle">Share your jump</h2>
+        <button class="bar__pill rz-sheet__close" id="btn-close-share" aria-label="Close" data-t-aria="close">✕</button>
+      </div>
+      <div class="rz-share__preview"><img id="share-card-img" alt="" hidden><div class="rz-share__wait" id="share-card-wait" data-t="shareMaking">Making the card…</div></div>
+      <div class="rz-share__btns">
+        <button class="btn btn--primary btn--huge" id="btn-share-image" data-t="shareImage">Share image</button>
+        <button class="btn btn--outline" id="btn-share-link" data-t="shareLink">Send a link to the analysis</button>
+      </div>
+      <p class="rz-note" id="share-note" data-t="shareNote">The card carries only measured numbers, each with how sure the system is.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── 10a2. COMPARISON OF TWO ATTEMPTS ───────────
+       Two attempts side by side, synchronized from the MEASURED take-off; under each — its
+       own measurements with their confidence. A difference is named only when the bands ±
+       do not overlap. Without a measured take-off and landing an attempt does not
+       appear here: there is nothing to align by. -->
+  <div class="rz-sheet rz-sheet--bottom" id="sheet-compare" role="dialog" aria-modal="true" aria-labelledby="sheet-compare-title" hidden style="display:none">
+    <div class="card rz-sheet__panel rz-cmp">
+      <div class="rz-sheet__head">
+        <h2 class="rz-sheet__title" id="sheet-compare-title" data-t="cmpTitle">Compare attempts</h2>
+        <button class="bar__pill rz-sheet__close" id="btn-close-compare" aria-label="Close" data-t-aria="close">✕</button>
+      </div>
+      <label class="rz-cmp__pick">
+        <span class="rz-eyebrow" data-t="cmpWith">Compare with</span>
+        <select class="rz-input" id="cmp-pick"></select>
+      </label>
+      <p class="rz-note" id="cmp-empty" hidden></p>
+      <!-- phone: video → bar → buttons on one screen, measurements below
+           (the buttons under the measurements ended up beyond the edge of the sheet, y=947 at 844) -->
+      <div class="rz-cmp__grid" id="cmp-grid">
+        <div class="rz-cmp__side" id="cmp-a">
+          <div class="rz-cmp__tag">A</div>
+          <video class="rz-cmp__video" id="cmp-video-a" muted playsinline preload="auto"></video>
+        </div>
+        <div class="rz-cmp__side" id="cmp-b">
+          <div class="rz-cmp__tag">B</div>
+          <video class="rz-cmp__video" id="cmp-video-b" muted playsinline preload="auto"></video>
+        </div>
+      </div>
+      <div class="rz-scrub" id="cmp-scrub">
+        <div class="rz-scrub__track">
+          <div class="rz-scrub__flight" id="cmp-scrub-flight"></div>
+          <input type="range" class="rz-scrub__range" id="cmp-scrub-range" min="0" max="1000" step="1" value="0" data-t-aria="scrubAria" aria-label="Seek the video">
+        </div>
+        <div class="rz-scrub__row">
+          <span class="rz-scrub__phase" id="cmp-scrub-phase"></span>
+        </div>
+      </div>
+      <div class="rz-toolbar video-controls" role="group" data-t-aria="videoControls" aria-label="Video controls">
+        <button class="rz-tool" id="cmp-frame-prev" data-t-aria="previousFrame" aria-label="Previous frame">◀︎ <span class="rz-tool__lbl" data-t="frameBack">frame</span></button>
+        <button class="rz-tool rz-tool--play" id="cmp-play" data-t-aria="playPause" aria-label="Pause / play">⏯</button>
+        <button class="rz-tool" id="cmp-frame-next" data-t-aria="nextFrame" aria-label="Next frame"><span class="rz-tool__lbl" data-t="frameFwd">frame</span> ▶︎</button>
+        <button class="rz-tool" id="cmp-speed">1×</button>
+      </div>
+      <div class="rz-cmp__grid rz-cmp__grid--facts" id="cmp-facts-grid">
+        <dl class="rz-cmp__facts" id="cmp-facts-a"></dl>
+        <dl class="rz-cmp__facts" id="cmp-facts-b"></dl>
+      </div>
+      <div class="rz-cmp__diff" id="cmp-diff"></div>
+      <p class="rz-note" data-t="cmpNote">Both videos are aligned on the measured take-off moment. Each number is a separate measurement of its attempt; a difference within ± is not a difference.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── 10b. STUDENT JOURNAL (for the coach) ─────────── -->
+  <!-- tapping a student opened only their LAST analysis, although
+       /coach/team/{uid}/history has long returned the whole journal. Now — a list with
+       the student's analyses by video; a tap opens any of them. -->
+  <div class="rz-sheet rz-sheet--bottom" id="sheet-student" role="dialog" aria-modal="true" aria-labelledby="sheet-student-title" hidden style="display:none">
+    <div class="card rz-sheet__panel">
+      <div class="rz-sheet__head">
+        <div class="rz-eyebrow" data-t="studentEyebrow">Skater’s journal</div>
+        <button class="bar__pill rz-sheet__close" id="btn-close-student-sheet" aria-label="Close" data-t-aria="close">✕</button>
+      </div>
+      <h2 class="rz-sheet__title" id="sheet-student-title">—</h2>
+      <div id="sheet-student-focus" class="rz-student__focus"></div>
+      <div id="sheet-student-rows" class="rz-student" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- ─────────── 11. COACH AI HUB & CHAT (COACH AI) ─────────── -->
+  <section class="scr rz rz-coach" id="scr-coach" hidden>
+    <!-- a third heading in a row (screen header, hero,
+         the chat card heading) removed — the header and the card remain. -->
+    <div class="card rz-pcard rz-active" id="coach-active-workout-card" hidden>
+      <div class="rz-code__row">
+        <span class="rz-eyebrow rz-eyebrow--action" data-t="w018">CURRENT SESSION</span>
+        <span class="rz-log__filter" id="coach-workout-day"></span>
+      </div>
+      <h3 class="rz-card__t" id="coach-workout-block-name"></h3>
+      <p class="rz-note rz-note--flush" id="coach-workout-dosage"></p>
+      <div class="rz-actions__row rz-actions__row--21">
+        <button class="btn btn--primary" id="btn-coach-resume-session"><span data-t="w019">Resume session</span></button>
+        <button class="btn btn--outline" id="btn-coach-view-drill"><span data-t="w020">Drill video</span></button>
+      </div>
+    </div>
+
+    <div class="card rz-log rz-chat">
+      <div class="rz-log__head">
+        <div class="rz-chat__ttl">
+          <span class="rz-chat__dot" aria-hidden="true"></span>
+          <h3 class="rz-log__t" data-t="t000">Chat with the AI coach</h3>
+        </div>
+        <span class="rz-log__filter" data-t="t001">Answers cite their sources</span>
+      </div>
+      <div class="rz-chat__stream coach-chat-stream" id="coach-chat-stream">
+        <div class="chat-msg chat-msg--coach">
+          <div class="chat-msg-header">
+            <span class="chat-sender-badge">JumpSight AI</span>
+          </div>
+          <div class="chat-msg-text" id="ai-welcome-text" data-t="w021">Ask anything about technique, ISU rules or drills.</div>
+        </div>
+      </div>
+      <div class="rz-chat__chips chat-chips-scroll" id="coach-chat-chips">
+        <button class="chat-chip" data-ask="How do I fix under-rotation?" data-ask-en="How do I fix under-rotation?" data-t="u009">How do I fix under-rotation?</button>
+        <button class="chat-chip" data-ask="Why do my arms open too early?" data-ask-en="Why do my arms open too early?" data-t="u010">Why do the arms open?</button>
+        <button class="chat-chip" data-ask="Explain the difference between Lutz and Flip" data-ask-en="Explain the difference between Lutz and Flip" data-t="chipLzF">Lutz vs Flip</button>
+        <button class="chat-chip" data-ask="How long should I rest between sets?" data-ask-en="How long should I rest between sets?" data-t="u011">Rest between sets</button>
+        <!-- the most frequent misunderstanding of a result and the most frequent question of a newcomer -->
+        <button class="chat-chip" data-ask="How accurate is the rotation count?" data-ask-en="How accurate is the rotation count?">How accurate is it?</button>
+        <button class="chat-chip" data-ask="What is the difference between an Axel and a Lutz?" data-ask-en="What is the difference between an Axel and a Lutz?">Axel vs Lutz</button>
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" class="chat-input" id="coach-chat-input" data-t-ph="chatPlaceholder" placeholder="Ask the coach…">
+        <button class="chat-send-btn" id="btn-coach-chat-send" data-t-aria="send" aria-label="Send">➤</button>
+      </div>
+    </div>
+
+    <!-- the timer on the questions screen was superfluous — in a session each
+         block has its own timer. The markup is kept hidden, because coach.js
+         binds handlers to it. -->
+    <div class="card rz-pcard rz-timer" hidden>
+      <span class="rz-eyebrow" data-t="quickTimer">Quick drill timer</span>
+      <div class="rz-timer__row">
+        <div class="rz-timer__clock mono" id="coach-quick-timer-clock">0:45</div>
+        <div class="rz-timer__btns">
+          <button class="btn btn--primary" id="btn-coach-timer-start" data-t="timerStart">Start</button>
+          <button class="btn btn--outline" id="btn-coach-timer-reset" data-t="timerReset">Reset</button>
+        </div>
+      </div>
+      <div class="rz-timer__presets">
+        <button class="theme-b rz-segbtn coach-timer-preset" data-sec="30" data-t="sec30">30 s</button>
+        <button class="theme-b rz-segbtn coach-timer-preset is-on" data-sec="45" data-t="sec45">45 s</button>
+        <button class="theme-b rz-segbtn coach-timer-preset" data-sec="60" data-t="sec60">60 s</button>
+        <button class="theme-b rz-segbtn coach-timer-preset" data-sec="90" data-t="sec90">90 s</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 12. PRINTABLE COACH REPORT SHEET ─────────── -->
+</main>
+
+
+<!-- Three daily scenarios. "Progress" and "Ask" open from
+     "Today" and do not compete with the main actions on each screen. -->
+<!-- the coach saw the same three tabs as the skater —
+     "Analysis" (uploading THEIR OWN video of a jump) and "Progress" (THEIR OWN rotation
+     curve) make no sense for an account that does not jump. Two sets of
+     buttons in one navigation, and only the one matching the role is shown
+     (applyCoachTabs) — so switching the role in the profile changes the navigation
+     without a page reload. -->
+<nav class="tabs rz-tabs" id="app-tabs" data-t-aria="mainNavigation" aria-label="Main navigation">
+  <div class="tabs__brand" aria-hidden="true"><img src="/static/icon.svg" alt="" width="28" height="28"><span>JumpSight</span></div>
+  <button class="tabs__b rz-tabs__btn rz-tabs__btn--skater is-on" data-tab="record" aria-current="page">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <span class="rz-tabs__label" data-t="tabRecord">Analyse</span>
+  </button>
+  <button class="tabs__b rz-tabs__btn rz-tabs__btn--skater" data-tab="progress">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>
+    <span class="rz-tabs__label" data-t="tabProgress">Progress</span>
+  </button>
+  <button class="tabs__b rz-tabs__btn rz-tabs__btn--skater" data-tab="today">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span class="rz-tabs__label" data-t="tabToday">Training</span>
+  </button>
+  <button class="tabs__b rz-tabs__btn rz-tabs__btn--coach" data-tab="team" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span class="rz-tabs__label" data-t="tabTeam">Team</span>
+  </button>
+  <button class="tabs__b rz-tabs__btn rz-tabs__btn--coach" data-tab="account" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="rz-tabs__label" data-t="ariaProfile">Profile</span>
+  </button>
+  <!-- the sidebar has room for secondary sections,
+       to which on a phone quiet links lead; on a phone this block is
+       hidden (CSS), the main tabs remain main. A coach has nothing
+       to look for here — "Ask the assistant" leads to THEIR OWN session, and
+       the "Profile" tab is already the main one for the coach. -->
+  <div class="tabs__more" id="tabs-more">
+    <button class="tabs__s tabs__s--skater" data-go="learn"><span data-t="navLearn">Glossary</span></button>
+    <button class="tabs__s tabs__s--skater" data-go="coach"><span data-t="navAsk">Ask the coach</span></button>
+    <button class="tabs__s tabs__s--skater" data-go="account"><span data-t="ariaProfile">Profile</span></button>
+    <button class="tabs__s tabs__s--coach" data-go="learn" hidden><span data-t="navLearn">Glossary</span></button>
+  </div>
+</nav>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js" async defer></script>
+<script src="/static/isu_rank.js"></script>
+<script src="/static/text.js"></script>
+<script src="/static/coach-core.js"></script>
+<script src="/static/coach-today.js"></script>
+<script src="/static/coach-journal.js"></script>
+<script src="/static/coach-progress.js"></script>
+<script src="/static/coach-fitness.js"></script>
+<script src="/static/coach-player.js"></script>
+<script src="/static/coach-init.js"></script>
+<script src="/static/app-core.js"></script>
+<script src="/static/app-drill.js"></script>
+<script src="/static/app-answer.js"></script>
+<script src="/static/app-account.js"></script>
+<script src="/static/app-share.js"></script>
+<script src="/static/app-auth.js"></script>
+<script src="/static/app-team.js"></script>
+<script src="/static/app-video.js"></script>
+<script src="/static/app-live.js"></script>
+<script src="/static/app-upload.js"></script>
+<script src="/static/app-waiting.js"></script>
+<script src="/static/app-results.js"></script>
+<script src="/static/app-boot.js"></script>
+<script src="/static/app-assess.js"></script>
+<script src="/static/app-wiring.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.APP) window.APP.boot();
+  });
+</script>
+</body>
+</html>

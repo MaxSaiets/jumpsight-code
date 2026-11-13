@@ -1,0 +1,119 @@
+# Weekly PROGRAMS in the format of real courses (Week -> Day -> 3-4 drills).
+# Every drill is an id from drills.yaml (verified A/B entries only); dosage follows
+# the ACSM slots (intensity/volume/frequency/rest). Gates are measured criteria.
+# Focus rule: one goal per program (guidance hypothesis).
+
+- id: prog_under_rotation
+  title: 'Block "Under-rotation": air position and speed of the pull-in (2 weeks)'
+  goal: under_rotation
+  science: leverage - group density/speed, not twist (Yamaguchi 2025); norms 1273/1465°/s (Bruening 2018)
+  gate_in: under-rotation in verdict or rotation speed below standard
+  gate_out: 3 clean attempts in a row with clean verdict on target jump
+  weeks:
+  - days:
+    - - spinner_ladder
+      - pw_jump_pull_in
+    - - perna_walking_spin
+      - hv_single_rot_landing
+    - rest
+    - - spinner_ladder
+      - hv_one_and_half
+    - - conte_snap_drill
+      - pw_jump_pull_in
+    - rest
+    - - hv_consec_half_rotations
+      - ast_landing_hold
+  - days:
+    - - hv_one_and_half
+      - perna_toe_walking
+    - - conte_snizzle
+      - hv_single_rot_landing
+    - rest
+    - - hv_double_two_foot
+    - - conte_snap_drill
+      - spinner_ladder
+    - rest
+    - 'control session: 5 attempts of target jump on video → system measures'
+- id: prog_landing
+  title: 'Block "Landing": one foot, soft knee, check-out (2 weeks)'
+  goal: two_foot_landing
+  science: progression double-support→single-support; knee absorbs impact; focus look forward
+  gate_in: two_foot_landing/stiff_landing_knee/fall in detected errors
+  gate_out: 3 single-foot landings in a row with 3-second exit hold
+  weeks:
+  - days:
+    - - hv_back_hops_landing
+      - ast_landing_hold
+    - - hv_landing_tap_hops
+      - backspin_landing
+    - rest
+    - - hv_3hops_hold
+    - - hv_quarter_turns
+      - ast_landing_hold
+    - rest
+    - - backspin_landing
+      - hv_back_hops_landing
+  - days:
+    - - hv_3hops_hold
+      - hv_landing_tap_hops
+    - - backspin_landing
+      - hv_shoulder_counter_rot
+    - rest
+    - - ast_sequence
+      - ast_landing_hold
+    - - hv_back_hops_landing
+      - hv_quarter_turns
+    - rest
+    - 'control session: 5 attempts on video → system measures exit'
+- id: prog_height
+  title: 'Block "Height": explosiveness and the swing (2 weeks)'
+  goal: low_height
+  science: plyometrics - the only controlled evidence in figure skating (Hunnicutt 2016, p<0.001 off-ice);
+    when jump improves, do NOT increase volume (Moran)
+  gate_in: Flight time/height below your jump's baseline
+  gate_out: increase in flight time on control video
+  maturation_note: 'mid-PHV: maintain volume, do not increase'
+  weeks:
+  - days:
+    - - hv_band_takeoff_lifts
+    - - hv_speed_skater_core
+    - rest
+    - - hv_hip_twist_jumps
+    - rest
+    - - hv_band_takeoff_lifts
+    - rest
+  - days:
+    - - hv_speed_skater_core
+    - rest
+    - - hv_hip_twist_jumps
+    - rest
+    - - hv_band_takeoff_lifts
+    - rest
+    - control session on video
+- id: prog_basics
+  title: 'Block "Rotation basics": axis and organisation (2 weeks)'
+  goal: basics_rotation
+  science: axis through center of body (Perna); rotation from stop of movement (Conte)
+  gate_in: Clean attempt without errors or unmeasurable base metrics
+  gate_out: 'spinner ladder: rung 1.5 stable (3 consecutive)'
+  weeks:
+  - days:
+    - - perna_walking_spin
+      - ast_edge_hold
+    - - spinner_ladder
+    - rest
+    - - conte_backward_tstop
+      - perna_walking_spin
+    - - spinner_ladder
+    - rest
+    - - ast_sequence
+  - days:
+    - - perna_toe_walking
+      - spinner_ladder
+    - - conte_snap_drill
+    - rest
+    - - conte_snizzle
+    - - spinner_ladder
+      - ast_sequence
+    - rest
+    - control session on video

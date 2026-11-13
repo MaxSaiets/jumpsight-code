@@ -1,0 +1,48 @@
+# mutable state and personal data
+var/
+.env
+*.key
+*.pem
+
+# weights and large binaries (see models/MANIFEST.md)
+models/*.pt
+models/*.pth
+*.onnx
+*.onnx.data
+*.pkl
+*.npz
+*.torchscript
+
+# media (third-party footage must never be committed)
+*.mp4
+*.mov
+*.webm
+*.mkv
+*.avi
+
+# caches and build products
+__pycache__/
+*.py[cod]
+kb_cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+node_modules/
+
+# editor and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# browser gate artefacts
+.playwright-cli/
+output/
+
+# demo media shown in the README
+!docs/media/*.mp4

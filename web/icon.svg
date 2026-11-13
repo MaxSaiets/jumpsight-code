@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="42" fill="#0E2233"/>
+  <!-- revolution track: a 300 degree arc with an arrowhead -->
+  <circle cx="96" cy="96" r="54" fill="none" stroke="#F7F9FB" stroke-width="14" stroke-linecap="round"
+          stroke-dasharray="254 340" transform="rotate(-90 96 96)"/>
+  <path d="M96 30 L112 42 L96 54 Z" fill="#FF8A6B"/>
+  <circle cx="96" cy="96" r="12" fill="#FF8A6B"/>
+</svg>

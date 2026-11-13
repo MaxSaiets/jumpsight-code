@@ -1,0 +1,186 @@
+norms:
+  rotation_speed_deg_s:
+    doubles: 1273
+    triples: 1465
+    source: Bruening 2018, PLOS ONE, https://doi.org/10.1371/journal.pone.0206162
+    evidence: A
+facts:
+- id: air_position_not_takeoff
+  text: Angular momentum at take-off is statistically the same in all six jumps — a rotation shortfall
+    is decided by the POSITION IN THE AIR (how tight and how fast you pull in), not by "more wind-up at
+    take-off".
+  sources:
+  - Yamaguchi & Sakurai 2025, Frontiers Sports, https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2025.1597598/full
+  - King 2005, https://pubmed.ncbi.nlm.nih.gov/16485524/
+  evidence: A
+- id: office_transfer_not_automatic
+  text: 'Off-ice progress does NOT carry over to the ice automatically: in a controlled study, off-ice
+    gains did not show up in on-ice Axels, double toe loops or double Axels. Every off-ice drill needs
+    checking on the ice.'
+  sources:
+  - Bruening & Richards 2006, https://pubmed.ncbi.nlm.nih.gov/17293625/
+  evidence: A
+- id: external_focus_cues
+  text: 'Cues with an external focus (the effect of the movement: "push the ice away") work better than
+    internal ones ("straighten your knee") at every age and level.'
+  sources:
+  - Wulf 2013, https://gwulf.faculty.unlv.edu/wp-content/uploads/2018/11/Wulf_AF_review_2013.pdf
+  evidence: A
+- id: feedback_frequency
+  text: 'Feedback after EVERY attempt makes learning worse (the guidance hypothesis). Better: one priority
+    error per session, with the full review at the end of the session, not after each jump.'
+  sources:
+  - Winstein & Schmidt 1990, https://www.krigolsonteaching.com/uploads/4/3/8/4/43848243/reduced_frequency_of_kr_1990_winstein_schmidt.pdf
+  - Salmoni, Schmidt, Walter 1984
+  evidence: A
+- id: growth_spurt_regression
+  text: During the growth spurt (mid-PHV) the gains from plyometrics are blunted even with more volume
+    — do NOT raise the volume; a temporary dip in skill is expected.
+  sources:
+  - Moran meta-analysis, https://pubmed.ncbi.nlm.nih.gov/28129282/
+  - NSCA LTAD, https://www.nsca.com/globalassets/about/position-statements/nsca_position_statement_long-term_athletic_development.pdf
+  evidence: A
+- id: contextual_interference
+  evidence: A
+  text: Mixed practice (several skills interleaved) gives a WORSE result within the session and BETTER
+    retention a week later than blocked practice. So if a drill goes worse today than yesterday, that
+    alone does not mean the session was bad.
+  applies_to:
+  - session_design
+  sources:
+  - Shea & Morgan 1979
+  - Magill & Anderson, Motor Learning and Control (textbook)
+- id: spacing_effect
+  evidence: A
+  text: The same volume spread over more days is retained better than when packed into one long session.
+    How many days a week you train matters more than how long one day is.
+  applies_to:
+  - volume
+  - frequency
+  sources:
+  - Schmidt & Lee, Motor Control and Learning (textbook)
+  - reviews of distributed practice in motor learning
+- id: static_stretch_before_power
+  evidence: A
+  text: Long static stretching right before explosive work temporarily lowers power. The warm-up before
+    jumps should be dynamic; keep static stretching for the end of the session.
+  applies_to:
+  - warmup
+  - low_height
+  sources:
+  - reviews of the acute effect of static stretching on power
+  - NSCA position materials
+- id: youth_resistance_safe
+  evidence: A
+  text: Strength work with controlled technique is safe and useful for children and teenagers; the "stunted
+    growth" myth is not supported. The risk comes not from the load itself but from poor technique control
+    and too much volume.
+  applies_to:
+  - level_1
+  - level_2
+  - age_gate
+  sources:
+  - Faigenbaum et al., NSCA position statement on youth resistance training
+  - Lloyd & Oliver, Youth Physical Development model
+- id: sleep_consolidation
+  evidence: B
+  text: Much of the consolidation of a motor skill happens during sleep. A session without recovery gives
+    less than the same session with it.
+  applies_to:
+  - recovery
+  sources:
+  - reviews of motor memory consolidation during sleep
+- id: one_focus_per_session
+  evidence: A
+  text: Keep cues to 1-2 per attempt and one focus per session. More instructions at once make both performance
+    and retention worse.
+  applies_to:
+  - session_design
+  - cueing
+  sources:
+  - Wulf 2013
+  - Winstein & Schmidt 1990
+  - Salmoni, Schmidt & Walter 1984
+- id: challenge_point
+  evidence: A
+  text: 'Learning is fastest at the edge of your ability: when a task works about two times out of three.
+    Too easy teaches nothing; too hard locks in compensations. That is why the step moves up after three
+    successful sessions and down after two unsuccessful ones.'
+  applies_to:
+  - progression
+  - regression
+  sources:
+  - Guadagnoli & Lee 2004, J Motor Behavior
+- id: plyometrics_raise_jump_height
+  evidence: A
+  text: 'Plyometrics raise jump height in young athletes — one of the best-supported effects in sports
+    science, shown in dozens of studies and meta-analyses. In practice: if measured height is below typical,
+    explosive work helps, not more repetitions of the jump itself.'
+  applies_to:
+  - low_height
+  - rotation_power
+  when_to_apply: when measured height or flight time is below typical for this jump
+  sources:
+  - meta-analyses of plyometrics and vertical jump in youth
+  - Hunnicutt 2016 (figure skating)
+- id: strength_underpins_power
+  evidence: A
+  text: 'Explosive work rests on basic strength: weak muscles have nothing to "explode" with. With low
+    leg strength, plyometrics give less and risk more than a few weeks of basic strength work first.'
+  applies_to:
+  - low_height
+  - limit_power
+  when_to_apply: when a physical test shows weak leg strength - base first, then explosive work
+  sources:
+  - NSCA position materials on the strength-to-power sequence
+  - Lloyd & Oliver, Youth Physical Development model
+- id: landing_mechanics_injury
+  evidence: A
+  text: Learning to land softly, bending at the knee and hip, lowers impact loads and the risk of knee
+    injury. It is the basis of injury-prevention programmes tested in large controlled studies.
+  applies_to:
+  - stiff_landing_knee
+  - fall
+  - landing_stability
+  when_to_apply: whenever a straight-knee landing or a fall is measured
+  sources:
+  - neuromuscular knee-injury prevention programmes (Myer, Hewett et al.)
+  - reviews of landing impact loads
+- id: specificity
+  evidence: A
+  text: A skill carries over better the closer the drill is to the target movement in speed, range and
+    conditions. An off-ice drill is lead-in work, not a replacement for the ice, and its effect has to
+    be checked on the ice.
+  applies_to:
+  - transfer
+  when_to_apply: for every off-ice drill - checking on the ice is mandatory
+  sources:
+  - specificity principle, motor learning textbooks
+  - Bruening & Richards 2006
+- id: progressive_overload
+  evidence: A
+  text: Without a gradual rise in difficulty or volume, adaptation stops. That is why the step moves up
+    when a drill works consistently, instead of repeating it forever.
+  applies_to:
+  - progression
+  when_to_apply: when the drill works 3 sessions in a row
+  sources:
+  - progressive overload principle, Bompa & Buzzichelli
+  - Guadagnoli & Lee 2004
+- id: warmup_raises_performance
+  evidence: A
+  text: A warm-up that gradually raises intensity improves explosive performance and lowers injury risk.
+    The dynamic part is what matters; static stretching before power work temporarily lowers it.
+  applies_to:
+  - warmup
+  when_to_apply: every session, before the main work
+  sources:
+  - reviews of warm-up effects on performance
+  - NSCA position materials
+priority_order:
+- fall
+- axis_tilt
+- under_rotation
+- two_foot_landing
+- stiff_landing_knee
+- late_check_out

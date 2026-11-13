@@ -1,0 +1,373 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>3D jump avatar</title>
+<!--
+  3D skeleton viewer. NO three.js and no external files at all: here
+  sticks and spheres, not meshes and materials, and there is no point pulling 600 KB
+  of a library into an offline project. Projection, depth sorting and
+  camera orbit are thirty lines below.
+
+  MAIN JOB OF THIS SCREEN: lets you view the jump FROM ABOVE. The body angle
+  is built from the measured rotation speed, so the revolutions are visible from above
+  exactly as many as are written in the JSON. This is an illustration of the count, not a
+  separate guess.
+
+  A pale joint = the depth of this joint is NOT measurable from a single camera
+  (the bone points toward the lens). The transparency here is depth_confidence from
+  avatar3d.py, not an artistic device.
+-->
+<style>
+ /* Light theme for coach/ui.html: the viewer lives in an iframe inside
+    a phone mockup 392 px wide, so everything shrinks and wraps. */
+ :root{--blue:#1c4fa0;--ink:#16233b;--mut:#68788f;--line:#dcdfe4}
+ body{margin:0;background:#fff;color:var(--ink);font:12.5px/1.45 -apple-system,'Segoe UI',system-ui}
+ #wrap{display:flex;flex-direction:column;height:100vh}
+ #top{padding:7px 9px;border-bottom:1px solid var(--line);display:flex;gap:8px;
+      align-items:center;flex-wrap:wrap}
+ #cv{flex:1;display:block;width:100%;background:#f4f7fb;cursor:grab;touch-action:none}
+ #cv:active{cursor:grabbing}
+ #bot{padding:6px 9px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+ button{background:#fff;color:#444;border:1px solid var(--line);border-radius:999px;
+        padding:3px 10px;cursor:pointer;font:inherit}
+ button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+ input[type=range]{flex:1;min-width:60px;accent-color:var(--blue)}
+ .k{color:var(--mut);white-space:nowrap}
+ .v{color:var(--ink);font-weight:700}
+ .warn{color:#b96a12}
+ #note{padding:7px 9px;color:var(--mut);font-size:11.5px;border-top:1px solid var(--line);
+       max-height:34%;overflow:auto}
+ code{color:var(--blue);font-size:11px}
+</style>
+<div id=wrap>
+ <div id=top>
+  <span class=k id=lbl-rev>revolutions <span class=v id=rev>—</span></span>
+  <span class=k id=lbl-conf>confidence <span class=v id=conf>—</span></span>
+  <span class=k id=lbl-fr>frame <span class=v id=fr>—</span></span>
+  <span class=k id=lbl-yaw>body angle <span class=v id=yaw>—</span></span>
+  <span style="flex:1"></span>
+  <button data-view=cam class=on id=btn-cam>as filmed</button>
+  <button data-view=top id=btn-top>top</button>
+  <button data-view=side id=btn-side>side</button>
+  <button data-view=free id=btn-free>free</button>
+ </div>
+ <canvas id=cv></canvas>
+ <div id=bot>
+  <button id=play>▶</button>
+  <input type=range id=sl min=0 max=0 value=0>
+  <button id=trail class=on>pelvis trail</button>
+ </div>
+ <div id=note></div>
+</div>
+<script>
+/* PROVENANCE TEXT. The strings method / yaw_source /
+   assumptions / warnings are born in English in src/avatar3d.py and in
+   the bridge: they are the machine record of the number's origin, and they stay in the JSON as is.
+   Here they are rephrased FOR THE READER, keeping all numbers. A string
+   not in the rules is shown as is: there is no silent substitution. */
+const TR_RULES = [
+  [/^measured 2D geometry \+ the measured rotation count; NOT a 3D lifting network$/,
+   () => 'measured 2D geometry plus measured revolution count; this is NOT a 3D lifting network'],
+  [/^measured 2D geometry only; the rotation count is not stated for this clip; NOT a 3D lifting network$/,
+   () => 'only measured 2D geometry; the revolution count for this clip is not named; this is NOT a 3D lifting network'],
+  [/^planar control: body kept facing the camera$/,
+   () => 'flat control: the body stays facing the camera'],
+  [/^no measured revolution count for this clip — the character keeps its facing; only the measured body geometry is shown; jumpsight bridge$/,
+   () => 'there is no revolution count for this clip: the character stays in one direction; only the measured body geometry is shown (jumpsight bridge)'],
+  [/^linear from measured revolutions \(([\d.]+) rev over the measured flight window\); jumpsight bridge$/,
+   m => `uniform from measured revolutions (${m[1]} rev over the measured flight window), jumpsight bridge`],
+  [/^none \(no measured rotation for (\w+); body does not turn\)$/,
+   m => `none (rotation about the ${m[1] === 'hips' ? 'hips' : 'shoulders'} axis is not measured; the body does not rotate)`],
+  [/^([\d.]+) measured rev on the (\w+) axis over the counting window (\d+)-(\d+) \(fit_quality ([\d.]+)\)$/,
+   m => `${m[1]} measured revolutions about the ${m[2] === 'hips' ? 'hips' : 'shoulders'} axis over the count window ${m[3]}-${m[4]} (fit quality ${m[5]})`],
+  [/^([\d.-]+) rev of measured pre-rotation before take-off$/,
+   m => `${m[1]} rev of measured run-up to take-off`],
+  [/^([\d.-]+) rev of measured post-rotation after landing$/,
+   m => `${m[1]} rev of measured settling after landing`],
+  [/^camera is roughly level: the vertical of the frame is taken as the vertical of the world$/,
+   () => 'camera roughly horizontal: the frame vertical is taken as the world vertical'],
+  [/^the skater's depth from the camera is not measurable from one view and is held at zero$/,
+   () => 'distance of the skater from the camera cannot be measured from a single viewpoint and is held at zero'],
+  [/^the sign of a limb's out-of-plane offset is chosen for temporal continuity, not measured; the mirrored pose would project identically$/,
+   () => 'the sign of the limb deviation from the plane was chosen by continuity in time, not measured; a mirrored pose would give the same projection'],
+  [/^bone lengths are the (\d+)th percentile of their projected length over the clip$/,
+   m => `bone lengths: the ${m[1]}-th percentile of their projection over the clip`],
+  [/^body angle is a LINEAR ramp from the measured revolution count — the per-frame rotation speed inside the flight is not measured$/,
+   () => 'body angle: uniform acceleration from the measured revolution count; the per-frame rotation speed in flight is not measured'],
+  [/^the rotation count is NOT stated for this clip, so the body does not turn in the animation: posture, arms, knee and landing are measured, the turn is not$/,
+   () => 'no revolution count is named for this clip, so the body does not rotate in the animation: posture, arms, knee and landing are measured; the revolution is not'],
+  [/^(.*); avatar scaled with a generic ([\d.]+) m torso, so metres are indicative$/,
+   m => `${TR(m[1])}; the scale was taken from a typical torso of ${m[2]} m, so the metres are approximate`],
+  [/^torso length from flight curvature was implausible$/,
+   () => 'torso length from the flight curvature came out implausible'],
+  [/^learned depth not applied: no overlapping (.*)$/,
+   m => `the learned depth was not applied: there are no common ${m[1]}`],
+];
+
+function TR(s){
+  if (typeof s !== 'string') return s;
+  /* composed lines: "hips: … | shoulders: …" and a list joined with "; " */
+  const m = s.match(/^hips: (.*) \| shoulders: (.*)$/);
+  if (m) return 'hips: ' + TR(m[1]) + ' | shoulders: ' + TR(m[2]);
+  if (s.includes('; ')) {
+    const parts = s.split('; ');
+    const hit = TR_RULES.some(([re]) => re.test(s));
+    if (!hit && parts.length > 1) return parts.map(TR).join('; ');
+  }
+  for (const [re, fn] of TR_RULES) {
+    const mm = s.match(re);
+    if (mm) return fn(mm);
+  }
+  return s;
+}
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let D = null, f = 0, playing = false, view = 'cam';
+let rotY = 0, rotX = -0.15, dist = 3.2, drag = null, trail = true;
+
+// The page lives at /avatar/{stem}, the data at /avatar3d/{stem}. The path
+// is derived from the current one, not hardcoded as absolute: otherwise the app
+// under a prefix breaks in an empty place.
+const url = location.pathname.replace(/\/avatar\/(?=[^/]*$)/, '/avatar3d/');
+fetch(url)
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(d => { D = d; init(); })
+  .catch(e => { document.getElementById('note').textContent =
+      ('could not load the 3D skeleton (' + e + '). Video analysis does not depend on this.'); });
+
+document.title = ('3D jump avatar');
+document.getElementById('lbl-rev').firstChild.textContent = ('revolutions ');
+document.getElementById('lbl-conf').firstChild.textContent = ('confidence ');
+document.getElementById('lbl-fr').firstChild.textContent = ('frame ');
+document.getElementById('lbl-yaw').firstChild.textContent = ('body angle ');
+document.getElementById('btn-cam').textContent = ('as filmed');
+document.getElementById('btn-top').textContent = ('top');
+document.getElementById('btn-side').textContent = ('side');
+document.getElementById('btn-free').textContent = ('free');
+document.getElementById('trail').textContent = ('pelvis trail');
+
+function init(){
+  document.getElementById('sl').max = D.frames.length - 1;
+  document.getElementById('rev').textContent = D.revolutions ?? '—';
+  document.getElementById('conf').textContent = D.rotation_confidence ?? '—';
+  f = D.phases.takeoff;
+  const q = D.quality;
+  const weak = (q.depth_not_measurable_joints || []);
+  /* The avatar is now also built where the revolution count
+     is held (coverage 8% -> 97%, tools/avatar_coverage.py). The character in
+     such clips does NOT rotate, and the viewer must know that this is a decision about
+     honesty, not "the skater did not rotate". */
+  document.getElementById('note').innerHTML =
+    (D.rotation_shown === false
+      ? '<span class=warn><b>' +
+        ('The turn is not shown.') + '</b> ' +
+        ('This video does not hold a revolution count, so the character faces one way ' +
+          'on purpose: rotating it to an unmeasured number would be a fabrication. ' +
+          'The measured body positions, arms, knee and landing.') +
+        '</span><br>'
+      : '') +
+    '<b>' + ('Where this character comes from.') + '</b> ' +
+    TR(D.method) + '. ' + ('Body angle') + ': <code>' +
+    TR(D.yaw_source) + '</code>.<br>' +
+    /* In the learned mode, depth is NOT measured for ANY
+       joint (all replaced), so the named list "depth is not measurable: Head, RKnee" was
+       untrue, and transparency has no role here.
+       The list remains only for planar mode. */
+    (D.depth_confidence == null
+      ? ('The depth of no joint is measured here: it was predicted by the learned model, ' +
+          'so transparency does not show the limit of measurability')
+      : ('Pale joints are drawn where depth is not measurable from a single camera') +
+        (weak.length ? ': <b>' + weak.join(', ') + '</b>' : '')) + '. ' +
+    (typeof q.bone_depth_clamped_frames === 'number'
+      ? ('Frames where the bone came out longer than its projection and the depth had to be clipped: ') +
+        q.bone_depth_clamped_frames + ' (' + Math.round(q.bone_depth_clamped_share*100) + '%).<br>'
+      : '') +
+    axesNote() +
+    '<b>' + ('Assumptions, not measurements:') + '</b> ' +
+    D.assumptions.map(TR).join('; ') + '.' +
+    (D.warnings && D.warnings.length
+      ? '<br><span class=warn>' + D.warnings.map(TR).join('; ') + '</span>' : '');
+  resize(); requestAnimationFrame(loop);
+}
+
+// DISAGREEMENT OF TWO AXES. The character rotates the hips by by_hips, the shoulders by
+// by_shoulders, while the header shows the summarized revolutions. While the axes agree,
+// it is one and the same number. When they do not, the viewer computes on the screen NOT what
+// reads at the top, and is right. Real case: a reference clip 1.42 in the
+// header against 0.84 for the hips. The threshold of 0.2 revolution is the same one at which
+// the project lowers confidence.
+function axesNote(){
+  const h = D.revolutions_by_hips, s = D.revolutions_by_shoulders;
+  if (h == null || s == null) return '';
+  const d = Math.abs(h - s);
+  if (d <= 0.2) return '';
+  return '<span class=warn><b>' +
+    ('The axes differ by ' + d.toFixed(2) + ' revolution') + '</b> ' +
+    ('(hips ' + h.toFixed(2) + ', shoulders ' + s.toFixed(2) + ', summarized count ' + D.revolutions +
+        '). The character rotates each axis by its own measurement, so ' +
+        'the count computed on screen will NOT be exactly what is in the header. ' +
+        'This very discrepancy lowered confidence to «' + D.rotation_confidence + '».') +
+    '</span><br>';
+}
+
+function resize(){
+  const r = cv.getBoundingClientRect();
+  cv.width = r.width * devicePixelRatio; cv.height = r.height * devicePixelRatio;
+}
+addEventListener('resize', resize);
+
+// ── camera ─────────────────────────────────────────────────────────────────
+// Three fixed viewpoints plus a free orbit. "top" is the same one on which
+// the revolutions are seen by eye: we look along the rotation axis.
+function angles(){
+  if (view === 'cam')  return [0, 0];
+  if (view === 'top')  return [0, -Math.PI/2 + 0.001];
+  if (view === 'side') return [Math.PI/2, 0];
+  return [rotY, rotX];
+}
+
+function project(p, w, h){
+  const [ay, ax] = angles();
+  let x = p[0], y = p[1], z = p[2];
+  const cy = Math.cos(ay), sy = Math.sin(ay);
+  let x1 = x*cy - z*sy, z1 = x*sy + z*cy;
+  const cx = Math.cos(ax), sx = Math.sin(ax);
+  let y1 = y*cx - z1*sx, z2 = y*sx + z1*cx;
+  // Weak perspective: scale from the distance, so depth can be read.
+  const s = h / dist * 0.75, k = 1 / (1 + z2 * 0.10);
+  return [w/2 + x1*s*k, h/2 - (y1 - 0.15)*s*k, z2];
+}
+
+function loop(){
+  requestAnimationFrame(loop);
+  if (!D) return;
+  const w = cv.width, h = cv.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#f4f7fb'; ctx.fillRect(0,0,w,h);
+
+  const pts = D.frames[f];
+  if (!pts) return;
+  const P = pts.map(p => p && p[0]!=null ? project(p, w, h) : null);
+
+  // Ice: the horizon at the height of the lowest point over the whole clip.
+  drawIce(w, h);
+
+  if (trail) drawTrail(w, h);
+
+  // Depth sorting: far bones are drawn first.
+  const order = D.bones.map((b,i) => {
+    const a = D.joints.indexOf(b[0]), c = D.joints.indexOf(b[1]);
+    const za = P[a], zc = P[c];
+    return {a, c, z: (za && zc) ? (za[2]+zc[2])/2 : 1e9};
+  }).filter(o => P[o.a] && P[o.c]).sort((p,q) => q.z - p.z);
+
+  const dcm = D.depth_confidence ? D.depth_confidence[f] : null;
+  for (const o of order){
+    const na = D.joints[o.a], nc = D.joints[o.c];
+    const right = na[0]==='R' || nc[0]==='R';
+    const conf = dcm ? Math.min(dcm[o.a] ?? 1, dcm[o.c] ?? 1) : 1;
+    // Transparency = confidence in depth. Not decoration: a pale joint means
+    // "from here its depth is not visible".
+    ctx.globalAlpha = 0.30 + 0.70 * conf;
+    ctx.strokeStyle = right ? '#c0392b' : '#1c4fa0';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(3, 13 * devicePixelRatio / dist * (1/(1+o.z*0.1)));
+    ctx.beginPath();
+    ctx.moveTo(P[o.a][0], P[o.a][1]); ctx.lineTo(P[o.c][0], P[o.c][1]);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // Head
+  const hi = D.joints.indexOf('Head');
+  if (P[hi]){
+    ctx.fillStyle = '#16233b';
+    ctx.beginPath();
+    ctx.arc(P[hi][0], P[hi][1], Math.max(5, 16*devicePixelRatio/dist), 0, 7);
+    ctx.fill();
+  }
+
+  const inAir = f >= D.phases.takeoff && f <= D.phases.landing;
+  document.getElementById('fr').textContent =
+     f + (inAir ? (' (flight)') : '');
+  document.getElementById('yaw').textContent =
+     (D.yaw_rad[f]!=null ? (D.yaw_rad[f]*180/Math.PI).toFixed(0) + '°' +
+       ' / ' + (D.yaw_rad[f]/(2*Math.PI)).toFixed(2) + (' rev') : '—');
+
+  if (playing){
+    f++;
+    if (f >= D.frames.length) f = 0;
+    document.getElementById('sl').value = f;
+  }
+}
+
+function drawIce(w, h){
+  // The ice stands on the lowest ankle over the clip: this is a measured quantity,
+  // not a line drawn "somewhere below".
+  let lowest = Infinity;
+  for (const fr of D.frames)
+    for (const j of ['LAnkle','RAnkle']){
+      const p = fr[D.joints.indexOf(j)];
+      if (p && p[1]!=null) lowest = Math.min(lowest, p[1]);
+    }
+  if (!isFinite(lowest)) return;
+  ctx.strokeStyle = '#d8e0ea'; ctx.lineWidth = 1;
+  for (let i = -3; i <= 3; i++){
+    const a = project([i*0.5, lowest, -3], w, h), b = project([i*0.5, lowest, 3], w, h);
+    const c = project([-3, lowest, i*0.5], w, h), d = project([3, lowest, i*0.5], w, h);
+    ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(c[0],c[1]); ctx.lineTo(d[0],d[1]); ctx.stroke();
+  }
+}
+
+function drawTrail(w, h){
+  const hi = D.joints.indexOf('HipMid');
+  ctx.strokeStyle = '#b9c4d4'; ctx.lineWidth = 2; ctx.beginPath();
+  let started = false;
+  for (let i = 0; i < D.frames.length; i++){
+    const p = D.frames[i][hi];
+    if (!p || p[0]==null) continue;
+    const q = project(p, w, h);
+    started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+    started = true;
+  }
+  ctx.stroke();
+  // Flight boundaries as points: it is visible where the count starts and ends.
+  for (const [k, col] of [['takeoff','#0f8a5f'], ['landing','#b96a12']]){
+    const p = D.frames[D.phases[k]] && D.frames[D.phases[k]][hi];
+    if (!p || p[0]==null) continue;
+    const q = project(p, w, h);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(q[0], q[1], 5, 0, 7); ctx.fill();
+  }
+}
+
+// ── controls ──────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-view]').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); view = b.dataset.view;
+});
+document.getElementById('play').onclick = e => {
+  playing = !playing; e.target.textContent = playing ? '⏸' : '▶';
+};
+document.getElementById('sl').oninput = e => { f = +e.target.value; playing = false;
+  document.getElementById('play').textContent = '▶'; };
+document.getElementById('trail').onclick = e => {
+  trail = !trail; e.target.classList.toggle('on', trail);
+};
+cv.onmousedown = e => { drag = [e.clientX, e.clientY];
+  document.querySelectorAll('[data-view]').forEach(x => x.classList.remove('on'));
+  view = 'free'; };
+addEventListener('mouseup', () => drag = null);
+addEventListener('mousemove', e => {
+  if (!drag) return;
+  rotY += (e.clientX - drag[0]) * 0.01;
+  rotX += (e.clientY - drag[1]) * 0.01;
+  rotX = Math.max(-1.5, Math.min(1.5, rotX));
+  drag = [e.clientX, e.clientY];
+});
+cv.onwheel = e => { e.preventDefault(); dist = Math.max(1.2, Math.min(9, dist * (1 + e.deltaY*0.001))); };
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { f = Math.min(D.frames.length-1, f+1); }
+  if (e.key === 'ArrowLeft')  { f = Math.max(0, f-1); }
+  if (e.key === ' ') { playing = !playing; e.preventDefault(); }
+  document.getElementById('sl').value = f;
+});
+</script>

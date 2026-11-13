@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jumpsight-platform"
+version = "0.1.0"
+description = "JumpSight web app and coaching service (public edition; the analysis engine is private)."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { file = "LICENSE" }
+dependencies = [
+    "numpy",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+app = ["fastapi", "uvicorn[standard]", "python-multipart", "httpx"]
+coach = ["sqlalchemy", "sentence-transformers", "openai", "google-auth", "pyjwt[crypto]"]
+auth-postgres = ["psycopg[binary]"]
+dev = ["pytest", "ruff", "requests"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+jumpsight_coach = ["kb/*.yaml", "kb/*.json", "*.html"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-q -rxX --strict-markers --import-mode=importlib"
+markers = [
+    "known_defect: an invariant the project promises that the current code breaks",
+    "requires_models: needs model weights from models/MANIFEST.md",
+    "requires_media: needs ffmpeg or a local video fixture",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4", "PIE", "RET"]
+ignore = [
+    "E501",  # line length is enforced by the formatter; long strings and URLs are left intact
+    "B905",  # zip() over sequences of equal length by construction
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Deliberate section-local imports and lazy sys.path set-up before imports.
+"tools/**" = ["E402"]
+# FastAPI parameter defaults such as File(...) are the framework's idiom.
+"src/jumpsight_app/webapp/*.py" = ["B008"]

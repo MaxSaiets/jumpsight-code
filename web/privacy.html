@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · JumpSight</title>
+<style>
+  :root { --bg: #F7F9FB; --ink: #0E2233; --dim: #4A6072; --line: #D5DFE7; --action: #BB3F24; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0B1620; --ink: #E9F1F6; --dim: #9FB6C8; --line: #22384A; --action: #FF8A6B; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 8px 0 4px; }
+  h2 { font-size: 19px; margin: 28px 0 6px; }
+  p, li { color: var(--ink); }
+  .dim { color: var(--dim); font-size: 14px; }
+  ul { padding-left: 20px; }
+  a { color: var(--action); }
+  .back { display: inline-block; min-height: 44px; line-height: 44px; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">← Back to JumpSight</a>
+  <h1>Privacy</h1>
+  <p class="dim">Last updated: October 9, 2026 · This is an early test version of the app.</p>
+
+  <h2>What JumpSight does</h2>
+  <p>You upload a phone video of a figure skating jump. The app measures the jump (name, rotation count, air time, height, visible execution errors) and builds a training session from it.</p>
+
+  <h2>What we store</h2>
+  <ul>
+    <li><b>Your video and the body-position data</b> computed from it (joint coordinates frame by frame).</li>
+    <li><b>Analysis results</b>: jump name, counts, measurements and errors, kept in your attempt journal.</li>
+    <li><b>Profile</b>: the name you enter, your role (skater or coach), answers to the optional “About you” questions and fitness tests, completed sessions.</li>
+    <li><b>Sign-in</b>: if you create an account — your email and a salted password hash; with Google sign-in — your Google account id, email and profile picture.</li>
+    <li><b>Coach links</b>: which coach you accepted, comments and focus they set.</li>
+    <li><b>Your answers</b> to “Did the system get the jump right?”.</li>
+  </ul>
+
+  <h2>How long</h2>
+  <ul>
+    <li>Uploaded videos and their body-position data are deleted automatically <b>72 hours</b> after the analysis.</li>
+    <li>If you agree that a video may be used to improve the system, that video and its body-position data are kept until you withdraw the agreement. Nothing is pre-selected; you can withdraw on the analysis screen.</li>
+    <li>Your journal, profile and coach links are kept while you use the app, or until you ask us to delete them.</li>
+  </ul>
+
+  <h2>Who processes data for us</h2>
+  <ul>
+    <li><b>Modal</b> — hosting and video processing.</li>
+    <li><b>Supabase</b> — storage of sign-in sessions.</li>
+    <li><b>OpenAI</b> — when you ask the coach chat a question that has no built-in answer, the question text (and, for questions about your own progress, a short summary of your profile and latest analysis) is sent to generate an answer. Videos are never sent.</li>
+    <li><b>Google</b> — only if you choose Google sign-in.</li>
+  </ul>
+  <p>We do not sell your data and do not use it for advertising.</p>
+
+  <h2>Coaches</h2>
+  <p>A coach sees your analyses only after you accept their request. You can remove a coach at any time in Profile.</p>
+
+  <h2>Children</h2>
+  <p>If you are under 13, a parent or guardian must set up and use the app with you.</p>
+
+  <h2>Delete your data or ask a question</h2>
+  <p>Write to <b>{{CONTACT}}</b> and we will delete your journal, profile and any videos you agreed to keep, usually within 7 days.</p>
+  <hr>
+  <p class="dim">Questions about how measurements are made are answered in the app under Training → Ask the coach.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,142 @@
+under_rotation:
+  causes:
+  - text: 'late or loose grouping: arms/free leg gather to axis slowly - this is the main lever for rotations'
+    fix_targets:
+    - air_position
+    - under_rotation
+    visible_in: rotation speed below normal (doubles ~1273°/s, triples ~1465°/s)
+    evidence: A
+    source: Yamaguchi 2025; King 2005; Bruening 2018 standards.
+  - text: not enough height/air time - no time to rotate
+    fix_targets:
+    - low_height
+    - rotation_power
+    visible_in: air_time_s and jump_height_m lower than typical.
+    evidence: A
+    source: Bruening 2018 (peak rotation at 64% of flight).
+  - text: axis tilted at takeoff - cone instead of screw
+    fix_targets:
+    - axis_tilt
+    visible_in: axis_tilt in found errors
+    evidence: B
+    source: Perna, iCoachSkating (axis drills)
+  - text: 'takeoff organization: rotation originates from stopping forward motion on the pick, not from
+      core power'
+    fix_targets:
+    - basics_rotation
+    visible_in: not measured from one video
+    evidence: B
+    source: Conte, iCoachSkating (snizzle)
+  - text: Weak explosive rotational power
+    fix_targets:
+    - rotation_power
+    visible_in: not measured; scientifically - NOT the main reason (moment of impulse at take-off is the
+      same for everyone)
+    evidence: C
+    source: Coaching folklore; demoted according to Yamaguchi 2025.
+two_foot_landing:
+  causes:
+  - text: 'under-rotation: body still rotating at moment of contact, balance unable to keep up'
+    fix_targets:
+    - under_rotation
+    - air_position
+    visible_in: Together with under-rotation in found errors.
+    evidence: B
+    source: Coaches' forums (Golden Skate), consensus.
+  - text: Weak single-leg stability of landing leg
+    fix_targets:
+    - landing_stability
+    visible_in: not measured from one video
+    evidence: B
+    source: hvfsc landing progressions; landing hops
+  - text: Fear of landing leg - other leg backs up
+    fix_targets:
+    - landing_stability
+    - two_foot_landing
+    visible_in: The free foot stays close to the ice throughout the exit.
+    evidence: C
+    source: coaching observation; not diagnosed from video - confirmed by coach
+  - text: looking down at landing - head pulls balance forward
+    fix_targets:
+    - landing_stability
+    evidence: B
+    source: adultsskatetoo waltz guide
+    visible_in: not reliably measured from video
+fall:
+  causes:
+  - text: Strong under-rotation - landing across flow
+    fix_targets:
+    - under_rotation
+    - air_position
+    evidence: B
+    source: coaches' consensus
+  - text: axis collapsed still in flight
+    fix_targets:
+    - axis_tilt
+    evidence: B
+    source: Perna axis drills
+  - text: stiff knee - impact not cushioned
+    fix_targets:
+    - stiff_landing_knee
+    - landing_stability
+    evidence: B
+    source: consensus; biomechanics of landings
+stiff_landing_knee:
+  causes:
+  - text: knee does not bend at contact - high impact load and loss of balance
+    fix_targets:
+    - stiff_landing_knee
+    - landing_stability
+    evidence: B
+    source: biomechanics of landings; landing mobility
+late_check_out:
+  causes:
+  - text: shoulders do not stop rotation after landing (weak check-out)
+    fix_targets:
+    - late_check_out
+    evidence: B
+    source: hvfsc check-out progressions
+axis_tilt:
+  causes:
+  - text: head/shoulder tilt at takeoff or uneven arms in grouping
+    fix_targets:
+    - axis_tilt
+    evidence: B
+    source: 'Perna, iCoachSkating: axis walk drills'
+low_height:
+  causes:
+  - text: Weak leg drive or unsynched arm swing at takeoff
+    fix_targets:
+    - low_height
+    - rotation_power
+    evidence: A
+    source: Hunnicutt 2016 (plyometrics, p<0.001 off-ice); Podolsky 1990
+basics_rotation:
+  causes:
+  - text: basic rotation organization is still forming - work with progression ladder
+    fix_targets:
+    - basics_rotation
+    evidence: B
+    source: 'spinner ladder 1/4-1/2-1-1.5 (triangulated: hvfsc + Golden Skate)'
+  - text: flat/unclear edge on approach - entry without curve
+    fix_targets:
+    - basics_rotation
+    evidence: B
+    source: adultsskatetoo waltz guide
+    visible_in: Partially visible on the trajectory of the landing.
+air_position:
+  causes:
+  - text: air position loose or grouping late
+    fix_targets:
+    - air_position
+    evidence: A
+    source: Yamaguchi 2025; King 2005
+landing_stability:
+  causes:
+  - text: loss of balance on landing — hand or free leg touches the ice, a step to the side after the
+      exit
+    fix_targets:
+    - landing_stability
+    - late_check_out
+    evidence: B
+    source: landing progressions; hvfsc check-out

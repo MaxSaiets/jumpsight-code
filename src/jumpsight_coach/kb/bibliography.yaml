@@ -1,0 +1,59 @@
+books:
+- title: The Science of Figure Skating
+  eds: Jason Vescovi, Jaci VanHeest (Routledge, 2018)
+  what: 'the one modern scientific monograph: physiology, jump biomechanics, nutrition, injuries'
+  use_for: science-based answers on load, biomechanics and development
+- title: Jumps in Figure Skating (in Russian)
+  eds: Alexei Mishin (1976)
+  what: a classic of jump theory from a coach of champions; rotation mechanics and teaching method
+  use_for: jump methodology, historical context of techniques
+- title: Biomechanics of the Skater's Movements (in Russian)
+  eds: Alexei Mishin (1981)
+  what: biomechanical foundations of a skater's movements
+  use_for: theory of rotation and the axis
+- title: 'Figure Skating: Championship Techniques'
+  eds: John Misha Petkevich (Sports Illustrated, 1989)
+  what: detailed technique of the elements from an Olympian; still cited by coaches
+  use_for: how to perform the elements
+- title: The Complete Book of Figure Skating
+  eds: Carole Shulman (Human Kinetics, 2002)
+  what: 'textbook by a PSA examiner: from basic skills to jumps, skating tests'
+  use_for: how learning is structured by levels
+- title: 'Culture on Ice: Figure Skating & Cultural Meaning'
+  eds: Ellyn Kestnbaum (2003)
+  what: judging, culture, history of the sport
+  use_for: context and history
+- title: 'Motor Control and Learning: A Behavioral Emphasis'
+  eds: Richard A. Schmidt, Timothy D. Lee (Human Kinetics)
+  what: 'core motor-learning textbook: practice, feedback, retention'
+  use_for: rules for building a session, cue frequency, distribution of practice
+- title: 'Motor Learning and Control: Concepts and Applications'
+  eds: Richard A. Magill, David Anderson (McGraw-Hill)
+  what: textbook with examples; contextual interference, stages of skill learning
+  use_for: why mixed practice is worse today and better a week later
+- title: 'Periodization: Theory and Methodology of Training'
+  eds: Tudor O. Bompa, Carlo A. Buzzichelli (Human Kinetics)
+  what: planning load in cycles, the ratio of volume to intensity
+  use_for: weekly volume, alternating hard and light days
+- title: Essentials of Strength Training and Conditioning
+  eds: NSCA (Human Kinetics)
+  what: reference on strength and conditioning, including plyometrics and warm-up
+  use_for: dosing power work, warm-up requirements
+- title: Long-Term Athlete Development
+  eds: Istvan Balyi, Richard Way, Colin Higgs (Human Kinetics)
+  what: stages of long-term athlete development, age windows
+  use_for: age gates, why volume is not raised during a growth spurt
+regulations:
+- title: ISU Special Regulations & Technical Rules — Single & Pair Skating
+  url: https://www.isu.org/figure-skating/rules/fsk-regulations-rules
+  what: 'official rules: element values, the GOE scale, under-rotation marks q/</<<'
+- title: ISU S&P Technical Panel Handbook (annual)
+  url: https://www.isu.org/figure-skating/rules/fsk-handbooks-faq
+  what: how the technical panel actually calls under-rotations and edges
+papers_key:
+- 'Yamaguchi & Sakurai 2025 (Frontiers): angular momentum is the same across jumps - the lever is the
+  air position'
+- 'Bruening 2018 (PLOS ONE): angular velocity norms 1273/1465 deg/s'
+- 'Hunnicutt 2016: plyometrics - the only controlled trial in figure skating'
+- 'Ridge 2022: weighted gloves - evidence AGAINST for already-learned jumps'
+- 'Bruening & Richards 2006: off-ice transfer is not automatic'
